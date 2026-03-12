@@ -1,0 +1,50 @@
+UpSkill – Website Structure & Sections
+1. Navbar / Header
+    • Logo: UpSkill
+    • Menu Items: Home | Courses | Dashboard | Creators | About | Contact
+    • Login / Sign-up buttons
+2. Hero Section
+    • Tagline: Personalized Skill Growth, Anytime, Anywhere
+    • Call-to-Action: Start Learning / Create an Account
+    • Visual: AI-personalized learning illustration (optional animation)
+3. How It Works / AI Personalization Flow
+    • Collect basic info – Name, Age, Nationality
+    • Collect preferences – Interests, Availability
+    • AI recommends 3 courses + curates timeline based on availability
+    • Flexible course duration – 5 days to 2 weeks
+4. Main Course Pillars
+    • Leadership & Management
+    • Communication & Public Speaking
+    • Entrepreneurship & Innovation
+    • Productivity & Time Management
+    • AI & Future Technologies
+5. Course Page Layout
+    • Title + Creator info
+    • Lesson breakdown (text, video, quizzes, interactive – creator-defined)
+    • Course duration
+    • Forum / Discussion Board link
+    • Ratings & Reviews
+6. Dashboard (User Features)
+    • Progress tracking (% completed)
+    • Confidence metrics (self-assessment)
+    • Bookmarks / Wishlist
+    • Forum / Discussion boards
+    • Certificates earned
+    • Recommended next courses
+7. Creator Portal
+    • Verification step (LinkedIn, Resume, Optional Certification)
+    • Submit course for approval
+    • Set course duration / schedule
+    • Add lesson content (text, video, quizzes, interactive)
+    • Enable course-specific discussion forums
+    • View analytics of student progress
+    • Receive ratings / feedback
+    • Manage enrolled students
+8. About / Mission Section
+    • Purpose: Personalized skill growth for learners aged 13+
+    • Primary Market: UAE
+    • Focus: Soft skills + AI awareness + career readiness
+9. Footer
+    • Quick links: Home | Courses | Dashboard | Creators | About | Contact
+    • Social media links
+    • Terms & Privacy
