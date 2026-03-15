@@ -1,12 +1,24 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams } from "next/navigation";
-import { GraduationCap, ArrowLeft, CheckCircle, Loader2, Clock, BookOpen, ChevronRight } from "lucide-react";
+import {
+  GraduationCap,
+  ArrowLeft,
+  CheckCircle,
+  Loader2,
+  Clock,
+  BookOpen,
+  ChevronDown,
+  ChevronUp,
+  ChevronRight,
+  ChevronLeft,
+  Trophy,
+  Target,
+} from "lucide-react";
 import { useSession } from "next-auth/react";
 import { sanitizeText } from "@/lib/sanitize";
-import { Button } from "@/components/ui";
 
 interface Course {
   id: string;
@@ -18,9 +30,8 @@ interface Course {
   lessonCount?: number;
 }
 
-// Define types for content parsing
 interface ContentBlock {
-  type: 'paragraph' | 'subheading' | 'list' | 'ordered-list';
+  type: "paragraph" | "subheading" | "list" | "ordered-list";
   content: string;
 }
 
@@ -36,21 +47,24 @@ interface CourseSection {
   id: string;
   title: string;
   contentBlocks: ContentBlock[];
-  quiz?: QuizQuestion[]; // Optional quiz for the section
+  quiz?: QuizQuestion[];
 }
 
 export default function CourseDetailPage() {
   const params = useParams();
   const courseId = params.courseId as string;
   const { data: session } = useSession();
+
   const [course, setCourse] = useState<Course | null>(null);
   const [loading, setLoading] = useState(true);
   const [markingComplete, setMarkingComplete] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
-  const [currentSection, setCurrentSection] = useState(0); // Track current section for progress
-  const [quizAnswers, setQuizAnswers] = useState<{[key: string]: number}>({}); // Track quiz answers
-  const [showQuizResults, setShowQuizResults] = useState(false); // Show quiz results
+  const [currentSection, setCurrentSection] = useState(0);
+  const [completedSections, setCompletedSections] = useState<Set<number>>(new Set());
+  const [quizAnswers, setQuizAnswers] = useState<{ [key: string]: number }>({});
+  const [quizScore, setQuizScore] = useState<{ correct: number; total: number }>({ correct: 0, total: 0 });
   const [error, setError] = useState<string | null>(null);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   useEffect(() => {
     async function fetchCourse() {
@@ -71,16 +85,58 @@ export default function CourseDetailPage() {
         setLoading(false);
       }
     }
-
     fetchCourse();
   }, [courseId]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.innerWidth >= 768) {
+      const contentEl = document.getElementById("section-content");
+      if (contentEl) {
+        contentEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+  }, [currentSection]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+        setCurrentSection((prev) => Math.min(prev + 1, (course ? parseContent(course.content).length : 1) - 1));
+      } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+        setCurrentSection((prev) => Math.max(prev - 1, 0));
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [course]);
+
+  const handleMarkSectionComplete = useCallback((sectionIndex: number) => {
+    setCompletedSections((prev) => {
+      const newSet = new Set(prev);
+      newSet.add(sectionIndex);
+      return newSet;
+    });
+  }, []);
+
+  const handleNextSection = useCallback(() => {
+    if (!course) return;
+    const sections = parseContent(course.content);
+    handleMarkSectionComplete(currentSection);
+    if (currentSection < sections.length - 1) {
+      setCurrentSection((prev) => prev + 1);
+    }
+  }, [currentSection, course, handleMarkSectionComplete]);
+
+  const handlePrevSection = useCallback(() => {
+    if (currentSection > 0) {
+      setCurrentSection((prev) => prev - 1);
+    }
+  }, [currentSection]);
 
   const handleMarkComplete = async () => {
     if (!session) {
       alert("Please sign in to track your progress");
       return;
     }
-
     setMarkingComplete(true);
     try {
       const response = await fetch("/api/progress", {
@@ -92,7 +148,6 @@ export default function CourseDetailPage() {
           progressPercent: 100,
         }),
       });
-
       if (response.ok) {
         setIsComplete(true);
       } else {
@@ -107,8 +162,11 @@ export default function CourseDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-primary-500 animate-spin" />
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-50/30 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="w-10 h-10 text-primary-500 animate-spin" />
+          <p className="text-slate-500 font-medium">Loading course...</p>
+        </div>
       </div>
     );
   }
@@ -126,113 +184,29 @@ export default function CourseDetailPage() {
     );
   }
 
-  // Parse content into structured sections
-  const parseContent = (): CourseSection[] => {
-    const sections = course.content.split(/^## /m).filter(Boolean);
-    return sections.map((section: string, index: number) => {
-      const lines = section.split('\\n');
-      const title = lines[0].trim();
-      const content = lines.slice(1).join('\\n');
-      
-      // Parse content into paragraphs, lists, and subheadings
-      const contentBlocks: ContentBlock[] = [];
-      let currentBlock: string[] = [];
-      let currentType: 'paragraph' | 'subheading' | 'list' | 'ordered-list' = 'paragraph';
-      
-      content.split('\\n').forEach((line: string) => {
-        line = line.trim();
-        if (!line) return;
-        
-        if (line.startsWith('### ')) {
-          // Save previous block if exists
-          if (currentBlock.length > 0) {
-            contentBlocks.push({ type: currentType, content: currentBlock.join('\\n') });
-          }
-          // Start new subheading block
-          contentBlocks.push({ type: 'subheading', content: line.replace('### ', '') });
-          currentType = 'paragraph';
-          currentBlock = [];
-        } else if (line.startsWith('- ') || line.startsWith('* ')) {
-          // Handle list items
-          if (currentType !== 'list') {
-            if (currentBlock.length > 0) {
-              contentBlocks.push({ type: currentType, content: currentBlock.join('\\n') });
-            }
-            currentType = 'list';
-            currentBlock = [line];
-          } else {
-            currentBlock.push(line);
-          }
-        } else if (/^\d+\.\s/.test(line)) {
-          // Handle numbered lists
-          if (currentType !== 'ordered-list') {
-            if (currentBlock.length > 0) {
-              contentBlocks.push({ type: currentType, content: currentBlock.join('\\n') });
-            }
-            currentType = 'ordered-list';
-            currentBlock = [line];
-          } else {
-            currentBlock.push(line);
-          }
-        } else {
-          // Regular paragraph
-          if (currentType !== 'paragraph') {
-            if (currentBlock.length > 0) {
-              contentBlocks.push({ type: currentType, content: currentBlock.join('\\n') });
-            }
-            currentType = 'paragraph';
-            currentBlock = [line];
-          } else {
-            currentBlock.push(line);
-          }
-        }
-      });
-      
-      // Add the last block
-      if (currentBlock.length > 0) {
-        contentBlocks.push({ type: currentType, content: currentBlock.join('\\n') });
-      }
-      
-      return {
-        id: index === 0 ? 'intro' : `section-${index}`,
-        title,
-        contentBlocks
-      };
-    });
-  };
-  
-  const sections = parseContent();
-  
-  // Scroll to current section when it changes
-  useEffect(() => {
-    // On mobile, we show all sections, but on desktop we only show current
-    // So we need to scroll to the top of the content area when section changes
-    if (window.innerWidth >= 768) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  }, [currentSection]);
+  const sections = parseContent(course.content);
+  const progressPercent = Math.round((completedSections.size / sections.length) * 100);
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      {/* Navigation Bar */}
-      <nav className="bg-white border-b border-slate-200 sticky top-0 z-50">
-        <div className="max-w-4xl mx-auto px-4 md:px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center shadow-button">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-50/30">
+      <nav className="bg-white/80 backdrop-blur-lg border-b border-slate-200/60 sticky top-0 z-50">
+        <div className="max-w-5xl mx-auto px-4 md:px-6 py-3 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2.5 group">
+            <div className="w-9 h-9 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center shadow-button group-hover:shadow-button-hover transition-shadow">
               <GraduationCap className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-bold text-slate-900">UpSkill</span>
+            <span className="text-lg font-bold text-slate-900">UpSkill</span>
           </Link>
           <div className="flex items-center gap-4">
-            <Link href="/courses" className="text-slate-600 hover:text-slate-900 font-medium">
+            <Link href="/courses" className="text-slate-600 hover:text-slate-900 font-medium text-sm">
               Courses
             </Link>
             {session ? (
-              <Link href="/dashboard" className="text-primary-600 font-medium">
+              <Link href="/dashboard" className="text-primary-600 font-medium text-sm">
                 Dashboard
               </Link>
             ) : (
-              <Link href="/login" className="text-slate-600 hover:text-slate-900 font-medium">
+              <Link href="/login" className="text-slate-600 hover:text-slate-900 font-medium text-sm">
                 Sign In
               </Link>
             )}
@@ -240,235 +214,455 @@ export default function CourseDetailPage() {
         </div>
       </nav>
 
-      <div className="max-w-4xl mx-auto px-4 md:px-6 py-8">
-        {/* Breadcrumb */}
-        <Link href="/courses" className="inline-flex items-center text-slate-500 hover:text-slate-700 mb-6 transition-colors">
-          <ChevronRight className="w-4 h-4 rotate-180 mr-1" />
+      <div className="max-w-5xl mx-auto px-4 md:px-6 py-6">
+        <Link
+          href="/courses"
+          className="inline-flex items-center gap-1.5 text-slate-500 hover:text-primary-600 mb-6 transition-colors text-sm font-medium"
+        >
+          <ArrowLeft className="w-4 h-4" />
           Back to Courses
         </Link>
 
-        {/* Course Header */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-6 md:p-8 mb-6">
-          <div className="flex items-center gap-3 mb-4">
-            <span className="px-3 py-1 bg-primary-100 text-primary-700 text-sm font-medium rounded-full">
-              {sanitizeText(course.category || "General")}
-            </span>
-            <span className="flex items-center gap-1 text-sm text-slate-500">
-              <Clock className="w-4 h-4" />
-              {course.duration || "~30 min"}
-            </span>
-            <span className="flex items-center gap-1 text-sm text-slate-500">
-              <BookOpen className="w-4 h-4" />
-              {course.lessonCount ? `${course.lessonCount} lessons` : "5 lessons"}
-            </span>
+        <header className="bg-white rounded-2xl border border-slate-200/80 p-5 md:p-6 mb-6 shadow-sm">
+          <div className="flex flex-col md:flex-row md:items-start gap-4">
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="px-2.5 py-1 bg-primary-100 text-primary-700 text-xs font-semibold rounded-full uppercase tracking-wide">
+                  {sanitizeText(course.category || "General")}
+                </span>
+                <div className="flex items-center gap-3 text-xs text-slate-500">
+                  <span className="flex items-center gap-1">
+                    <Clock className="w-3.5 h-3.5" />
+                    {course.duration || "~30 min"}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <BookOpen className="w-3.5 h-3.5" />
+                    {sections.length} sections
+                  </span>
+                </div>
+              </div>
+              <h1 className="text-xl md:text-2xl font-bold text-slate-900 mb-2">
+                {sanitizeText(course.title)}
+              </h1>
+              <p className="text-slate-600">{sanitizeText(course.description)}</p>
+            </div>
+            <div className="flex items-center gap-3 md:justify-end">
+              <div className="flex items-center gap-2 bg-slate-50 rounded-xl px-4 py-3">
+                <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center">
+                  <span className="text-primary-600 font-bold text-sm">{progressPercent}%</span>
+                </div>
+                <div className="text-xs">
+                  <p className="font-semibold text-slate-700">Progress</p>
+                  <p className="text-slate-500">
+                    {completedSections.size}/{sections.length} sections
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
-          
-          <h1 className="text-2xl md:text-3xl font-bold text-slate-900 mb-3">
-            {sanitizeText(course.title)}
-          </h1>
-          <p className="text-slate-600 text-lg">
-            {sanitizeText(course.description)}
-          </p>
-        </div>
+        </header>
 
-         {/* Course Content */}
-         <div className="flex flex-col md:flex-row gap-8">
-           {/* Section Navigation Sidebar */}
-           <div className="md:w-64 flex-shrink-0 hidden md:block">
-             <div className="bg-slate-50 rounded-xl p-4 sticky top-24">
-               <h3 className="font-semibold text-slate-800 mb-3">Course Sections</h3>
-               <ul className="space-y-2">
-                 {sections.map((section, index) => (
-                   <li key={section.id}>
-                     <button
-                       onClick={() => setCurrentSection(index)}
-                       className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
-                         currentSection === index
-                           ? 'bg-primary-100 text-primary-700 font-medium'
-                           : 'text-slate-600 hover:bg-slate-100'
-                       }`}
-                     >
-                       <span className="mr-2">{index + 1}.</span>
-                       {section.title.length > 30 ? `${section.title.substring(0, 30)}...` : section.title}
-                     </button>
-                   </li>
-                 ))}
-               </ul>
-             </div>
-           </div>
-           
-           {/* Main Content */}
-           <div className="flex-1">
-             <div className="bg-white rounded-2xl border border-slate-200 p-6 md:p-8">
-              <div className="space-y-8">
+        <div className="flex flex-col lg:flex-row gap-6">
+          <aside className="lg:w-72 flex-shrink-0">
+            <div className="lg:hidden mb-4">
+              <button
+                onClick={() => setMobileNavOpen(!mobileNavOpen)}
+                className="w-full flex items-center justify-between px-4 py-3 bg-white rounded-xl border border-slate-200 font-medium text-slate-700"
+              >
+                <span className="flex items-center gap-2">
+                  <BookOpen className="w-4 h-4 text-primary-500" />
+                  Section {currentSection + 1}: {sections[currentSection]?.title}
+                </span>
+                {mobileNavOpen ? (
+                  <ChevronUp className="w-4 h-4" />
+                ) : (
+                  <ChevronDown className="w-4 h-4" />
+                )}
+              </button>
+              {mobileNavOpen && (
+                <div className="mt-2 bg-white rounded-xl border border-slate-200 overflow-hidden animate-slide-down">
+                  <ul className="divide-y divide-slate-100">
+                    {sections.map((section, index) => (
+                      <li key={section.id}>
+                        <button
+                          onClick={() => {
+                            setCurrentSection(index);
+                            setMobileNavOpen(false);
+                          }}
+                          className={`w-full text-left px-4 py-3 flex items-center gap-3 text-sm transition-colors ${
+                            currentSection === index
+                              ? "bg-primary-50 text-primary-700"
+                              : "text-slate-600 hover:bg-slate-50"
+                          }`}
+                        >
+                          <span
+                            className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${
+                              completedSections.has(index)
+                                ? "bg-primary-500 text-white"
+                                : currentSection === index
+                                ? "bg-primary-100 text-primary-600"
+                                : "bg-slate-100 text-slate-500"
+                            }`}
+                          >
+                            {completedSections.has(index) ? (
+                              <CheckCircle className="w-4 h-4" />
+                            ) : (
+                              index + 1
+                            )}
+                          </span>
+                          <span className="line-clamp-2">{section.title}</span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+
+            <div className="hidden lg:block bg-white rounded-2xl border border-slate-200/80 p-4 sticky top-20 shadow-sm">
+              <h3 className="font-semibold text-slate-800 mb-3 flex items-center gap-2">
+                <BookOpen className="w-4 h-4 text-primary-500" />
+                Sections
+              </h3>
+              <ul className="space-y-1">
                 {sections.map((section, index) => (
-              <div 
-            key={section.id} 
-            className={`pb-8 border-b border-slate-100 last:border-b-0 last:pb-0 ${currentSection === index ? 'block' : 'hidden md:block'}`}
-          >
-            <h2 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
-            <span className="w-8 h-8 rounded-full bg-primary-100 text-primary-600 flex items-center justify-center text-sm font-bold">
-                  {index + 1}
-                    </span>
-                  {section.title}
-                </h2>
-                
-                <div className="space-y-4 ml-10">
-              {section.contentBlocks.map((block, blockIndex) => {
-                if (block.type === 'subheading') {
-                      return (
-                        <h3 key={blockIndex} className="text-lg font-semibold text-slate-800 mt-6 mb-3 pl-4 border-l-2 border-primary-200 pl-4">
-                            {block.content}
-                            </h3>
-                          );
-                        } else if (block.type === 'list') {
-                          return (
-                            <ul key={blockIndex} className="list-disc list-inside text-slate-600 space-y-2 pl-4">
-                              {block.content.split('\\n').map((item, itemIndex) => {
-                                const cleanedItem = item.replace(/^-\s*|\*-\s*/,'');
-                                 return cleanedItem.trim() ? <li key={itemIndex}>{cleanedItem}</li> : null;
-                               }).filter(Boolean)}
-                             </ul>
-                           );
-                         } else if (block.type === 'ordered-list') {
-                           return (
-                             <ol key={blockIndex} className="list-decimal list-inside text-slate-600 space-y-2 pl-4">
-                               {block.content.split('\\n').map((item, itemIndex) => {
-                                 const cleanedItem = item.replace(/^\d+\.\s*/,'');
-                                 return cleanedItem.trim() ? <li key={itemIndex}>{cleanedItem}</li> : null;
-                               }).filter(Boolean)}
-                             </ol>
-                           );
-                         } else {
-                           return (
-                             <p key={blockIndex} className="text-slate-600 leading-relaxed">
-                               {block.content.split('\\n').map((line, lineIndex) => (
-                                 <span key={lineIndex}>
-                                   {line}
-                                   {lineIndex < block.content.split('\\n').length - 1 && <br />}
-                                 </span>
-                               ))}
-                             </p>
-                           );
-                         }
-                       })}
-                     </div>
-                     
-                     {/* Section Quiz if available */}
-                     {section.quiz && section.quiz.length > 0 && (
-                       <div className="mt-8 pt-6 border-t border-slate-100 bg-slate-50 rounded-xl p-4">
-                         <h3 className="font-semibold text-slate-800 mb-4 flex items-center gap-2">
-                           <span className="w-6 h-6 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center text-xs font-bold">
-                             ?
-                           </span>
-                           Knowledge Check
-                         </h3>
-                         
-                         {section.quiz.map((question, qIndex) => {
-                           const questionKey = `${section.id}-${qIndex}`;
-                           const userAnswer = quizAnswers[questionKey];
-                           
-                           return (
-                             <div key={question.id} className="mb-6 last:mb-0">
-                               <p className="font-medium text-slate-700 mb-3">{qIndex + 1}. {question.question}</p>
-                               
-                               <div className="space-y-2 ml-2">
-                                 {question.options.map((option, oIndex) => (
-                                   <label 
-                                     key={oIndex}
-                                     className={`flex items-center gap-2 p-3 rounded-lg cursor-pointer transition-colors ${
-                                       userAnswer === oIndex 
-                                         ? (oIndex === question.correctAnswer 
-                                           ? 'bg-green-100 border border-green-300' 
-                                           : 'bg-red-100 border border-red-300')
-                                         : 'bg-white border border-slate-200 hover:bg-slate-50'
-                                     }`}
-                                   >
-                                     <input
-                                       type="radio"
-                                       name={questionKey}
-                                       checked={userAnswer === oIndex}
-                                       onChange={() => setQuizAnswers(prev => ({ ...prev, [questionKey]: oIndex }))}
-                                       className="text-primary-500 focus:ring-primary-500"
-                                     />
-                                     <span className="text-slate-700">{option}</span>
-                                   </label>
-                                 ))}
-                               </div>
-                               
-                               {userAnswer !== undefined && (
-                                 <div className={`mt-2 text-sm p-3 rounded-lg ${
-                                   userAnswer === question.correctAnswer 
-                                     ? 'bg-green-50 text-green-700' 
-                                     : 'bg-red-50 text-red-700'
-                                 }`}>
-                                   {userAnswer === question.correctAnswer 
-                                     ? '✓ Correct! Well done.' 
-                                     : `✗ Incorrect. ${question.explanation}`}
-                                 </div>
-                               )}
-                             </div>
-                           );
-                         })}
-                       </div>
-                     )}
-                   </div>
-                 ))}
-               </div>
-             </div>
-           </div>
-         </div>
+                  <li key={section.id}>
+                    <button
+                      onClick={() => setCurrentSection(index)}
+                      className={`w-full text-left px-3 py-2.5 rounded-xl text-sm flex items-center gap-3 transition-all ${
+                        currentSection === index
+                          ? "bg-primary-50 text-primary-700 font-medium shadow-sm"
+                          : completedSections.has(index)
+                          ? "text-slate-600 hover:bg-slate-50"
+                          : "text-slate-600 hover:bg-slate-50"
+                      }`}
+                    >
+                      <span
+                        className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${
+                          completedSections.has(index)
+                            ? "bg-primary-500 text-white"
+                            : currentSection === index
+                            ? "bg-primary-200 text-primary-700"
+                            : "bg-slate-100 text-slate-400"
+                        }`}
+                      >
+                        {completedSections.has(index) ? (
+                          <CheckCircle className="w-3.5 h-3.5" />
+                        ) : (
+                          index + 1
+                        )}
+                      </span>
+                      <span className="line-clamp-2 leading-snug">{section.title}</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+              {isComplete && (
+                <div className="mt-4 pt-4 border-t border-slate-100">
+                  <div className="flex items-center gap-2 text-green-600 bg-green-50 rounded-lg px-3 py-2">
+                    <Trophy className="w-4 h-4" />
+                    <span className="text-sm font-medium">Course Completed!</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </aside>
 
-         {/* Progress Tracker */}
-         <div className="mt-8 pt-6 border-t border-slate-200">
-           <div className="flex items-center justify-between mb-2">
-             <span className="text-sm font-medium text-slate-700">Course Progress</span>
-             <span className="text-sm font-medium text-slate-700">{Math.round(((currentSection + 1) / sections.length) * 100)}%</span>
-           </div>
-           <div className="w-full bg-slate-200 rounded-full h-2">
-             <div 
-               className="bg-primary-500 h-2 rounded-full transition-all duration-300" 
-               style={{ width: `${((currentSection + 1) / sections.length) * 100}%` }}
-             ></div>
-           </div>
-           
-           <div className="flex justify-between mt-4">
-             <button 
-               onClick={() => setCurrentSection(prev => Math.max(0, prev - 1))}
-               disabled={currentSection === 0}
-               className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-200 transition-colors"
-             >
-               Previous
-             </button>
-             
-             {currentSection < sections.length - 1 ? (
-               <button 
-                 onClick={() => setCurrentSection(prev => Math.min(sections.length - 1, prev + 1))}
-                 className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors"
-               >
-                 Next
-               </button>
-             ) : (
-               <button
-                 onClick={handleMarkComplete}
-                 disabled={markingComplete || isComplete}
-                 className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all ${
-                   isComplete
-                     ? "bg-green-100 text-green-700 cursor-default"
-                     : "bg-primary-500 text-white hover:bg-primary-600 shadow-button hover:shadow-button-hover hover:-translate-y-0.5 disabled:opacity-50"
-                 }`}
-               >
-                 {markingComplete ? (
-                   <Loader2 className="w-5 h-5 animate-spin" />
-                 ) : (
-                   <CheckCircle className="w-5 h-5" />
-                 )}
-                 {isComplete ? "Completed" : "Mark as Complete"}
-               </button>
-             )}
-           </div>
-         </div>
+          <main className="flex-1 min-w-0">
+            <div id="section-content" className="bg-white rounded-2xl border border-slate-200/80 p-6 md:p-8 shadow-sm">
+              <header className="mb-6 pb-4 border-b border-slate-100">
+                <div className="flex items-center gap-3">
+                  <span
+                    className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold ${
+                      completedSections.has(currentSection)
+                        ? "bg-primary-500 text-white"
+                        : "bg-primary-100 text-primary-600"
+                    }`}
+                  >
+                    {completedSections.has(currentSection) ? (
+                      <CheckCircle className="w-5 h-5" />
+                    ) : (
+                      currentSection + 1
+                    )}
+                  </span>
+                  <div>
+                    <h2 className="text-lg md:text-xl font-bold text-slate-900">
+                      {sections[currentSection]?.title}
+                    </h2>
+                    <p className="text-sm text-slate-500">
+                      Section {currentSection + 1} of {sections.length}
+                    </p>
+                  </div>
+                </div>
+              </header>
+
+              <div className="prose prose-slate max-w-none">
+                {sections[currentSection]?.contentBlocks.map((block, blockIndex) => {
+                  if (block.type === "subheading") {
+                    return (
+                      <h3
+                        key={blockIndex}
+                        className="text-lg font-semibold text-slate-800 mt-8 mb-4 flex items-center gap-2"
+                      >
+                        <span className="w-1 h-5 bg-primary-400 rounded-full"></span>
+                        {block.content}
+                      </h3>
+                    );
+                  } else if (block.type === "list") {
+                    return (
+                      <ul key={blockIndex} className="space-y-2.5 my-4">
+                        {block.content
+                          .split("\n")
+                          .map((item) => item.replace(/^[-*]\s*/, "").trim())
+                          .filter(Boolean)
+                          .map((item, itemIndex) => (
+                            <li
+                              key={itemIndex}
+                              className="flex items-start gap-3 text-slate-600"
+                            >
+                              <span className="w-1.5 h-1.5 rounded-full bg-primary-400 mt-2 flex-shrink-0"></span>
+                              <span>{item}</span>
+                            </li>
+                          ))}
+                      </ul>
+                    );
+                  } else if (block.type === "ordered-list") {
+                    return (
+                      <ol key={blockIndex} className="space-y-2.5 my-4">
+                        {block.content
+                          .split("\n")
+                          .map((item) => item.replace(/^\d+\.\s*/, "").trim())
+                          .filter(Boolean)
+                          .map((item, itemIndex) => (
+                            <li
+                              key={itemIndex}
+                              className="flex items-start gap-3 text-slate-600"
+                            >
+                              <span className="w-6 h-6 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-xs font-bold flex-shrink-0">
+                                {itemIndex + 1}
+                              </span>
+                              <span>{item}</span>
+                            </li>
+                          ))}
+                      </ol>
+                    );
+                  } else {
+                    return (
+                      <p
+                        key={blockIndex}
+                        className="text-slate-600 leading-relaxed mb-4"
+                      >
+                        {block.content.split("\n").map((line, lineIndex) => (
+                          <span key={lineIndex}>
+                            {line}
+                            {lineIndex < block.content.split("\n").length - 1 && <br />}
+                          </span>
+                        ))}
+                      </p>
+                    );
+                  }
+                })}
+              </div>
+
+              {sections[currentSection]?.quiz && sections[currentSection].quiz!.length > 0 && (
+                <div className="mt-8 pt-6 border-t border-slate-200">
+                  <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl border border-amber-200/60 p-6">
+                    <div className="flex items-center gap-3 mb-5">
+                      <div className="w-10 h-10 rounded-xl bg-amber-400 flex items-center justify-center">
+                        <Target className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-slate-800">Knowledge Check</h3>
+                        <p className="text-sm text-slate-500">
+                          Test your understanding of this section
+                        </p>
+                      </div>
+                    </div>
+
+                    {sections[currentSection].quiz!.map((question, qIndex) => {
+                      const questionKey = `${sections[currentSection].id}-${qIndex}`;
+                      const userAnswer = quizAnswers[questionKey];
+
+                      return (
+                        <div key={question.id} className="mb-6 last:mb-0">
+                          <p className="font-medium text-slate-700 mb-3">
+                            {qIndex + 1}. {question.question}
+                          </p>
+                          <div className="space-y-2">
+                            {question.options.map((option, oIndex) => (
+                              <label
+                                key={oIndex}
+                                className={`flex items-center gap-3 p-4 rounded-xl cursor-pointer transition-all border-2 ${
+                                  userAnswer === oIndex
+                                    ? oIndex === question.correctAnswer
+                                      ? "bg-green-50 border-green-400"
+                                      : "bg-red-50 border-red-400"
+                                    : "bg-white border-slate-200 hover:border-primary-300 hover:bg-primary-50/50"
+                                }`}
+                              >
+                                <input
+                                  type="radio"
+                                  name={questionKey}
+                                  checked={userAnswer === oIndex}
+                                  onChange={() => {
+                                    setQuizAnswers((prev) => ({
+                                      ...prev,
+                                      [questionKey]: oIndex,
+                                    }));
+                                    if (oIndex === question.correctAnswer) {
+                                      setQuizScore((prev) => ({
+                                        correct: prev.correct + 1,
+                                        total: prev.total + 1,
+                                      }));
+                                    } else {
+                                      setQuizScore((prev) => ({
+                                        ...prev,
+                                        total: prev.total + 1,
+                                      }));
+                                    }
+                                  }}
+                                  className="text-primary-500 focus:ring-primary-500 w-4 h-4"
+                                />
+                                <span className="text-slate-700">{option}</span>
+                                {userAnswer === oIndex && (
+                                  <span className="ml-auto">
+                                    {oIndex === question.correctAnswer ? (
+                                      <CheckCircle className="w-5 h-5 text-green-500" />
+                                    ) : (
+                                      <span className="text-red-500 text-sm font-medium">
+                                        Incorrect
+                                      </span>
+                                    )}
+                                  </span>
+                                )}
+                              </label>
+                            ))}
+                          </div>
+                          {userAnswer !== undefined && userAnswer !== question.correctAnswer && (
+                            <div className="mt-3 p-3 bg-amber-50 rounded-lg border border-amber-200">
+                              <p className="text-sm text-amber-800">
+                                <strong>Explanation:</strong> {question.explanation}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              <div className="mt-8 pt-6 border-t border-slate-200">
+                <div className="flex items-center justify-between gap-4">
+                  <button
+                    onClick={handlePrevSection}
+                    disabled={currentSection === 0}
+                    className="flex items-center gap-2 px-4 py-2.5 bg-slate-100 text-slate-700 rounded-xl disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-200 transition-colors font-medium text-sm"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                    Previous
+                  </button>
+
+                  {currentSection < sections.length - 1 ? (
+                    <button
+                      onClick={handleNextSection}
+                      className="flex items-center gap-2 px-5 py-2.5 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition-colors font-medium text-sm shadow-button hover:shadow-button-hover"
+                    >
+                      Next Section
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  ) : (
+                    <button
+                      onClick={handleMarkComplete}
+                      disabled={markingComplete || isComplete}
+                      className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-sm transition-all ${
+                        isComplete
+                          ? "bg-green-100 text-green-700 cursor-default"
+                          : "bg-primary-500 text-white hover:bg-primary-600 shadow-button hover:shadow-button-hover"
+                      }`}
+                    >
+                      {markingComplete ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Trophy className="w-4 h-4" />
+                      )}
+                      {isComplete ? "Completed!" : "Complete Course"}
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          </main>
+        </div>
       </div>
     </div>
   );
+}
+
+function parseContent(content: string): CourseSection[] {
+  const sections = content.split(/^## /m).filter(Boolean);
+
+  return sections.map((section: string, index: number) => {
+    const lines = section.split("\n");
+    const title = lines[0].trim();
+    const body = lines.slice(1).join("\n");
+
+    const contentBlocks: ContentBlock[] = [];
+    let currentBlock: string[] = [];
+    let currentType: "paragraph" | "subheading" | "list" | "ordered-list" = "paragraph";
+
+    body.split("\n").forEach((line: string) => {
+      line = line.trim();
+      if (!line) return;
+
+      if (line.startsWith("### ")) {
+        if (currentBlock.length > 0) {
+          contentBlocks.push({ type: currentType, content: currentBlock.join("\n") });
+        }
+        contentBlocks.push({ type: "subheading", content: line.replace("### ", "") });
+        currentType = "paragraph";
+        currentBlock = [];
+      } else if (line.startsWith("- ") || line.startsWith("* ")) {
+        if (currentType !== "list") {
+          if (currentBlock.length > 0) {
+            contentBlocks.push({ type: currentType, content: currentBlock.join("\n") });
+          }
+          currentType = "list";
+          currentBlock = [line];
+        } else {
+          currentBlock.push(line);
+        }
+      } else if (/^\d+\.\s/.test(line)) {
+        if (currentType !== "ordered-list") {
+          if (currentBlock.length > 0) {
+            contentBlocks.push({ type: currentType, content: currentBlock.join("\n") });
+          }
+          currentType = "ordered-list";
+          currentBlock = [line];
+        } else {
+          currentBlock.push(line);
+        }
+      } else {
+        if (currentType !== "paragraph") {
+          if (currentBlock.length > 0) {
+            contentBlocks.push({ type: currentType, content: currentBlock.join("\n") });
+          }
+          currentType = "paragraph";
+          currentBlock = [line];
+        } else {
+          currentBlock.push(line);
+        }
+      }
+    });
+
+    if (currentBlock.length > 0) {
+      contentBlocks.push({ type: currentType, content: currentBlock.join("\n") });
+    }
+
+    return {
+      id: index === 0 ? "intro" : `section-${index}`,
+      title,
+      contentBlocks,
+    };
+  });
 }
