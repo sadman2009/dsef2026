@@ -212,30 +212,30 @@ export default async function Home() {
             </div>
 
             {/* Soft Skills Focus */}
-            <div className="bg-amber-50 border-2 border-amber-200 rounded-3xl p-6">
-              <div className="w-12 h-12 bg-amber-500 rounded-xl flex items-center justify-center mb-4">
-                <Sparkles className="w-6 h-6 text-white" />
-              </div>
-              <h3 className="text-xl font-display font-bold text-slate-900 mb-2">
-                Skills Employers Need
-              </h3>
-              <p className="text-slate-600 text-sm">
-                Communication, leadership, time management — the real differentiators in any career.
-              </p>
-            </div>
+                        <div className="bg-amber-50 border-2 border-amber-200 rounded-3xl p-6 md:col-start-3 md:row-start-1">
+                          <div className="w-12 h-12 bg-amber-500 rounded-xl flex items-center justify-center mb-4">
+                            <Sparkles className="w-6 h-6 text-white" />
+                          </div>
+                          <h3 className="text-xl font-display font-bold text-slate-900 mb-2">
+                            Skills Employers Need
+                          </h3>
+                          <p className="text-slate-600 text-sm">
+                            Communication, leadership, time management — the real differentiators in any career.
+                          </p>
+                        </div>
 
             {/* Accessible */}
-            <div className="bg-slate-900 rounded-3xl p-6 text-white">
-              <div className="w-12 h-12 bg-primary-500 rounded-xl flex items-center justify-center mb-4">
-                <Globe className="w-6 h-6" />
-              </div>
-              <h3 className="text-xl font-display font-bold mb-2">
-                Built for Everyone
-              </h3>
-              <p className="text-slate-400 text-sm">
-                Works on any device. Designed for learners everywhere. No expensive software needed.
-              </p>
-            </div>
+                        <div className="bg-slate-900 rounded-3xl p-6 text-slate-300 md:col-start-3 md:row-start-2">
+                          <div className="w-12 h-12 bg-primary-500 rounded-xl flex items-center justify-center mb-4">
+                            <Globe className="w-6 h-6" />
+                          </div>
+                          <h3 className="text-xl font-display font-bold text-slate-300 mb-2">
+                            Built for Everyone
+                          </h3>
+                          <p className="text-slate-300 text-sm">
+                            Works on any device. Designed for learners everywhere. No expensive software needed.
+                          </p>
+                        </div>
           </div>
         </div>
       </section>
