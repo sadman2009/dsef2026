@@ -4,11 +4,9 @@ export const timeManagementContent = `# Time Management
 
 ## Introduction
 
-Time is your most limited and valuable resource. Unlike money or skills, you can't earn more of it—everyone gets exactly 24 hours each day. The difference between high achievers and overwhelmed workers isn't how much time they have, but how effectively they use it.
+Time is your most limited and valuable resource. Unlike money or skills, you can't earn more of it—everyone gets exactly 24 hours each day.
 
-Poor time management leads to stress, missed deadlines, and work-life imbalance. Good time management reduces anxiety, increases productivity, and creates space for what matters most—both professionally and personally.
-
-This course will teach you practical techniques to take control of your time, from prioritization frameworks to habit-building strategies. You'll learn to work smarter, not just harder.
+The difference between high achievers and overwhelmed workers isn't how much time they have, but how effectively they use it.
 
 ## Learning Objectives
 
@@ -20,29 +18,38 @@ By the end of this course, you will be able to:
 - Manage meetings and interruptions effectively
 - Create systems for recurring tasks and workflows
 
-## Module 1: The Foundations of Time Management
+## Module 1: Foundations of Time Management
 
+### Engage
+Think about yesterday. Where did your time actually go?
+
+Most people guess they spent 2 hours on email, 4 hours on "real work," and 1 hour in meetings. The reality? Often 4+ hours on email, 2 hours in meetings, and only 2 hours on meaningful work.
+
+The gap between perception and reality is where productivity leaks away.
+
+### Explore
+Consider two employees:
+
+**Employee A:** Works 10 hours a day, always busy, constantly responding to requests, feels overwhelmed, misses deadlines.
+
+**Employee B:** Works 8 hours a day, seems calm, delivers quality work consistently, leaves on time, has energy for personal projects.
+
+What's the difference? Employee B isn't working less—they're working smarter. They've mastered time management.
+
+### Explain
 Before learning specific techniques, understand the principles that make time management work.
 
-**The Myth of "More Time"**
+**Key Principles:**
 
-People often think: "If only I had more time, I could get everything done." But more time without better systems just means more time to be inefficient. The goal isn't to create more time—it's to use existing time more intentionally.
+| Principle | Insight | Application |
+|-----------|---------|-------------|
+| Not all tasks are equal | 2 hours on strategy > 2 hours on busywork | Prioritize high-impact work |
+| Energy matters as much as time | Complex tasks need high energy | Match tasks to energy levels |
+| Focus beats multitasking | Multitasking reduces productivity by 40% | Single-task for better results |
+| Systems over willpower | Willpower is a limited resource | Build systems that make good choices automatic |
 
-**Key Principles**
-
-**Principle 1: Not All Tasks Are Equal**
-A common mistake is treating all tasks as equally important. They're not. Spending 2 hours on a strategic project creates more value than spending 2 hours on low-impact busywork.
-
-**Principle 2: Energy Matters as Much as Time**
-You can't manage time without managing energy. Complex tasks require high energy; routine tasks can be done with lower energy. Match tasks to your energy levels.
-
-**Principle 3: Focus Beats Multitasking**
-Research consistently shows multitasking reduces productivity by up to 40%. Single-tasking—focusing on one thing at a time—is more efficient.
-
-**Principle 4: Systems Over Willpower**
-Willpower is a limited resource. Instead of relying on discipline, build systems that make good choices automatic. Your environment shapes your behavior more than your intentions.
-
-**The Time Audit**
+### Elaborate
+**The Time Audit:**
 
 Before improving, know where your time currently goes. Track your time for 3-5 days:
 
@@ -50,41 +57,102 @@ Before improving, know where your time currently goes. Track your time for 3-5 d
 2. Categorize by type (meetings, email, focused work, breaks)
 3. Identify patterns and surprises
 
+**Time Audit Template:**
+
+| Time Block | Activity | Category | Value (H/M/L) |
+|------------|----------|----------|---------------|
+| 8:00-8:30 | Email triage | Email | M |
+| 8:30-10:30 | Project X work | Focused | H |
+| 10:30-11:00 | Break + email | Break/Email | L |
+| ... | ... | ... | ... |
+
 Most people discover they spend far more time than expected on low-value activities.
+
+**The Myth of "More Time":**
+
+People often think: "If only I had more time, I could get everything done."
+
+But more time without better systems just means more time to be inefficient. The goal isn't to create more time—it's to use existing time more intentionally.
+
+### Evaluate
+**Quick Check:** According to research, how much does multitasking reduce productivity?
+
+A) 10-20%
+B) 40%
+C) 60%
+D) Multitasking doesn't affect productivity
+
+*(Answer: B – Multitasking reduces productivity by up to 40% due to context-switching costs)*
+
+### Your Action
+**Time Audit Exercise:**
+
+[ ] Track your time for the next 3 days in 30-minute blocks
+[ ] Categorize each block: Focused Work, Meetings, Email, Admin, Break, Other
+[ ] Calculate: What % of time went to high-value work?
+[ ] Identify: Where did the most time leak to low-value activities?
+
+---
 
 ## Module 2: Prioritization Frameworks
 
+### Engage
+Your to-do list has 25 items. You have time for 5. How do you choose?
+
+Most people tackle the easiest tasks first—that satisfying feeling of crossing things off. But that approach leaves the most important work undone.
+
+### Explore
+Consider this scenario: You have these tasks:
+- Reply to a client email (urgent, 15 min)
+- Work on quarterly strategy presentation (important, 4 hours)
+- Fix a minor bug (urgent, 30 min)
+- Plan team offsite (important, 2 hours)
+- Respond to Slack messages (feels urgent, ongoing)
+
+Which do you do first? The urgent ones or the important ones?
+
+The right answer depends on whether they're also important. Urgent ≠ Important.
+
+### Explain
 Effective prioritization ensures you spend time on what matters most.
 
-**The Eisenhower Matrix**
+**The Eisenhower Matrix:**
 
-President Eisenhower used this framework to make decisions:
+| | Urgent | Not Urgent |
+|---|--------|------------|
+| **Important** | DO: Handle immediately | SCHEDULE: Plan time for it |
+| **Not Important** | DELEGATE: Can someone else do it? | ELIMINATE: Why are you doing this? |
 
-URGENT + IMPORTANT = DO: Handle immediately
-NOT URGENT + IMPORTANT = SCHEDULE: Plan time for it
-URGENT + NOT IMPORTANT = DELEGATE: Can someone else do it?
-NOT URGENT + NOT IMPORTANT = ELIMINATE: Why are you doing this?
+**Key Insight:** Most people spend too much time in "Urgent/Not Important"—other people's priorities. Successful people maximize time in "Not Urgent/Important"—strategic, proactive work.
 
-**How to Use:**
+### Elaborate
+**How to Use the Eisenhower Matrix:**
+
 1. List your tasks
 2. Categorize each by importance (does it advance your goals?)
 3. Categorize each by urgency (is there a deadline?)
 4. Assign to the appropriate quadrant
 5. Act accordingly
 
-**Key Insight:** Most people spend too much time in "Urgent/Not Important"—other people's priorities. Successful people maximize time in "Not Urgent/Important"—strategic, proactive work.
+**Eisenhower Matrix Examples:**
 
-**The 80/20 Rule (Pareto Principle)**
+| Quadrant | Examples | Action |
+|----------|----------|--------|
+| Urgent + Important | Client crisis, deadline today, medical emergency | Do first |
+| Not Urgent + Important | Strategy, exercise, relationship building, learning | Schedule and protect |
+| Urgent + Not Important | Some emails, some meetings, other people's requests | Delegate or batch |
+| Not Urgent + Not Important | Excessive social media, busywork, avoidance activities | Eliminate |
+
+**The 80/20 Rule (Pareto Principle):**
 
 80% of results come from 20% of efforts. Identify your high-impact 20%:
-
 - Which tasks drive the most important outcomes?
 - Which clients or projects generate most revenue?
 - Which activities bring the most satisfaction?
 
 Focus energy on high-impact activities. Minimize or eliminate low-impact ones.
 
-**The MIT Method (Most Important Tasks)**
+**The MIT Method (Most Important Tasks):**
 
 Each morning, identify 1-3 MITs:
 - The tasks that, if completed, would make the day successful
@@ -93,7 +161,7 @@ Each morning, identify 1-3 MITs:
 
 Work on MITs first, before checking email or attending meetings.
 
-**MoSCoW Method**
+**MoSCoW Method:**
 
 For projects with multiple tasks:
 - **M**ust have: Non-negotiable, critical tasks
@@ -101,13 +169,57 @@ For projects with multiple tasks:
 - **C**ould have: Nice to have if time permits
 - **W**on't have: Explicitly deferred for now
 
+### Evaluate
+**Quick Check:** In the Eisenhower Matrix, which quadrant should you spend the MOST time in for strategic success?
+
+A) Urgent and Important
+B) Not Urgent and Important
+C) Urgent and Not Important
+D) Not Urgent and Not Important
+
+*(Answer: B – "Not Urgent/Important" is where strategic, proactive work happens. This prevents crises rather than reacting to them.)*
+
+### Your Action
+**Prioritization Exercise:**
+
+[ ] Write your current to-do list (all of it)
+[ ] Place each item in the Eisenhower Matrix
+[ ] Identify your top 3 MITs for today
+[ ] Block time for your "Not Urgent/Important" work before the day fills
+
+---
+
 ## Module 3: Time Blocking and Focus
 
-Intentions without protected time become wishes. Time blocking turns intentions into scheduled commitments.
+### Engage
+You've identified your priorities. Now how do you ensure they actually get done?
 
-**What Is Time Blocking?**
+Intentions without protected time become wishes. "I'll work on the strategy deck" without a scheduled block becomes "I'll do it tomorrow"—every day for a week.
 
-Instead of working from an open to-do list, schedule specific tasks into specific time blocks. Each block has one dedicated focus.
+### Explore
+Compare these two approaches to a Tuesday:
+
+**Approach A (Open List):**
+- Arrive, check email
+- Respond to messages
+- Attend meeting
+- Remember strategy deck exists
+- Get interrupted
+- Stay late to "catch up"
+- Leave exhausted, strategy deck untouched
+
+**Approach B (Time Blocked):**
+- 8:00-8:30: Email triage (process, don't respond)
+- 8:30-10:30: FOCUS BLOCK - Strategy deck
+- 10:30-11:00: Break + respond to urgent emails
+- 11:00-12:00: Meeting
+- ...
+- 5:00: Leave on time, strategy deck complete
+
+Which day feels better? Which produces results?
+
+### Explain
+Time blocking turns intentions into scheduled commitments. Each block has one dedicated focus.
 
 **Benefits:**
 - Eliminates "what should I do next?" decision fatigue
@@ -115,6 +227,7 @@ Instead of working from an open to-do list, schedule specific tasks into specifi
 - Protects time for important but not urgent work
 - Makes your day visible and realistic
 
+### Elaborate
 **How to Time Block:**
 
 1. **Plan tomorrow today**—end each day by blocking tomorrow
@@ -125,17 +238,19 @@ Instead of working from an open to-do list, schedule specific tasks into specifi
 
 **Example Daily Schedule:**
 
-8:00-8:30 — Planning and email triage
-8:30-10:30 — FOCUS BLOCK: Project X (MIT)
-10:30-11:00 — Break and email
-11:00-12:00 — Meetings
-12:00-12:45 — Lunch
-12:45-2:45 — FOCUS BLOCK: Project Y (MIT)
-2:45-3:00 — Email and admin
-3:00-4:00 — Meetings
-4:00-5:00 — Wrap-up, planning, inbox zero
+| Time | Block | Notes |
+|------|-------|-------|
+| 8:00-8:30 | Planning + email triage | Process inbox, don't respond |
+| 8:30-10:30 | FOCUS: Project X (MIT) | Phone off, email closed |
+| 10:30-11:00 | Break + email responses | Respond to what needs it |
+| 11:00-12:00 | Meetings | Cluster when possible |
+| 12:00-12:45 | Lunch | Actually step away |
+| 12:45-2:45 | FOCUS: Project Y (MIT) | Deep work block |
+| 2:45-3:00 | Email + admin | Batch process |
+| 3:00-4:00 | Meetings | |
+| 4:00-5:00 | Wrap-up + planning | Prepare for tomorrow |
 
-**The Pomodoro Technique**
+**The Pomodoro Technique:**
 
 For tasks requiring sustained focus:
 1. Set timer for 25 minutes
@@ -143,9 +258,9 @@ For tasks requiring sustained focus:
 3. Take 5-minute break
 4. After 4 pomodoros, take 15-30 minute break
 
-**Deep Work Blocks**
+**Deep Work Blocks:**
 
-Researcher Cal Newport coined "deep work"—focused, uninterrupted work on cognitively demanding tasks. Schedule 90-120 minute deep work blocks where:
+"Deep work" (Cal Newport) refers to focused, uninterrupted work on cognitively demanding tasks. Schedule 90-120 minute blocks where:
 - Phone is silenced
 - Email and chat are closed
 - Door is closed or "busy" status is on
@@ -153,65 +268,146 @@ Researcher Cal Newport coined "deep work"—focused, uninterrupted work on cogni
 
 Deep work is where breakthroughs happen. Shallow work—email, meetings, admin—is necessary but shouldn't consume your day.
 
+### Evaluate
+**Quick Check:** What is the Pomodoro Technique's recommended work/break cycle?
+
+A) 60 minutes work, 10 minutes break
+B) 25 minutes work, 5 minutes break
+C) 45 minutes work, 15 minutes break
+D) 90 minutes work, 30 minutes break
+
+*(Answer: B – 25 minutes focused work, 5 minutes break. After 4 cycles, take a longer 15-30 minute break.)*
+
+### Your Action
+**Time Blocking Exercise:**
+
+[ ] Create a time block schedule for tomorrow
+[ ] Identify your 2 MITs and block them first
+[ ] Include at least one 90-minute deep work block
+[ ] Try the Pomodoro technique for your next focus session
+
+---
+
 ## Module 4: Eliminating Time Wasters
 
+### Engage
+You're working on an important task. A notification pops up. You "just check" for 30 seconds. Forty-five minutes later, you're deep in a social media scroll or email rabbit hole.
+
+Sound familiar? Distractions destroy focus. Identifying and eliminating your biggest time wasters is essential.
+
+### Explore
+Track your interruptions for one day:
+- How many times did you check your phone?
+- How many times did email notifications pull you away?
+- How many "quick questions" derailed your focus?
+- How much time did you spend in unnecessary meetings?
+
+The total might shock you.
+
+### Explain
 Protecting your time requires identifying and eliminating common drains.
 
-**Common Time Wasters**
+**Common Time Wasters:**
 
-**Digital Distractions**
-- Social media scrolling
-- Constant email checking (average worker checks email 15x/day)
-- Notification interruptions
-- "Quick" phone checks that become 20 minutes
+| Category | Examples | Impact |
+|----------|----------|--------|
+| Digital distractions | Social media, notifications, constant email checking | 2-3 hours/day lost |
+| Unnecessary meetings | No agenda, wrong attendees, could-be-emails | 30-60% of meeting time |
+| Perfectionism | Over-polishing, endless tweaks | Doubles task time |
+| Indecision | Revisiting decisions, analysis paralysis | Hours on simple choices |
 
-**Solutions:**
-- Turn off non-essential notifications
-- Check email 2-3 times at scheduled times
-- Use website blockers during focus time
-- Keep phone in another room during deep work
+### Elaborate
+**Digital Distraction Solutions:**
 
-**Unnecessary Meetings**
-- Meetings without clear agendas
-- Meetings that could be emails
-- Meetings starting late or running over
-- Attendees who don't need to be there
+| Problem | Solution |
+|---------|----------|
+| Constant notifications | Turn off all non-essential notifications |
+| Email checking 15x/day | Schedule 2-3 email blocks per day |
+| Phone distractions | Keep phone in another room during focus time |
+| "Quick checks" | Use website blockers during focus blocks |
 
-**Solutions:**
-- Decline meetings without agendas
-- Suggest async alternatives when appropriate
-- Start on time even if others are late
-- Propose shorter meeting durations (25 or 50 minutes)
+**Meeting Solutions:**
 
-**Perfectionism**
-- Spending 2 hours on a task that needed 30 minutes
-- Rewriting emails multiple times
-- Endless tweaking that adds no value
+| Problem | Solution |
+|---------|----------|
+| No agenda | Decline or request agenda in advance |
+| Could be an email | Suggest async alternative |
+| Running late | Start on time regardless |
+| Wrong attendees | Propose smaller group |
 
-**Solutions:**
-- Define "done" before starting
-- Use the 80% rule: 80% quality is often enough
-- Set time limits for tasks
-- Ask: "Is additional time improving the outcome?"
+**Perfectionism Solutions:**
 
-**Indecision**
-- Revisiting decisions already made
-- Over-researching simple choices
-- Analysis paralysis
+| Problem | Solution |
+|---------|----------|
+| Over-polishing | Define "done" before starting |
+| Endless tweaking | Use the 80% rule: 80% quality is often enough |
+| Rewriting repeatedly | Set time limits for tasks |
+| Fear of shipping | Ask: "Is additional time improving the outcome?" |
 
-**Solutions:**
-- Set decision deadlines
-- Limit research time
-- Accept that good enough is often good enough
-- Trust your first instinct for low-stakes decisions
+**Indecision Solutions:**
+
+| Problem | Solution |
+|---------|----------|
+| Revisiting decisions | Make decisions once; move on |
+| Analysis paralysis | Limit research time |
+| Fear of wrong choice | Accept that good enough is often good enough |
+| Over-researching | Trust your first instinct for low-stakes decisions |
+
+### Evaluate
+**Quick Check:** What's the "80% rule" for perfectionism?
+
+A) Spend 80% of your time on perfecting work
+B) 80% quality is often enough for most tasks
+C) Only do tasks that are 80% important
+D) Work 80% of the day, rest 20%
+
+*(Answer: B – 80% quality is often sufficient. Additional time rarely improves outcomes proportionally.)*
+
+### Your Action
+**Time Waster Elimination:**
+
+[ ] Identify your top 3 time wasters
+[ ] For each, write one specific change you'll make
+[ ] Turn off all non-essential notifications right now
+[ ] Set up website blocking for your next focus block
+
+---
 
 ## Module 5: Managing Meetings and Interruptions
 
+### Engage
+The average professional spends 23 hours per week in meetings. That's more than half your work week.
+
+How many of those meetings were truly necessary? How many ran over time? How many had clear outcomes?
+
+### Explore
+Consider this meeting audit:
+
+**Before:** 25 hours/week in meetings
+- 10 hours: Truly necessary, well-run
+- 8 hours: Could have been handled async
+- 4 hours: Wrong people included
+- 3 hours: No clear purpose or outcome
+
+**After intervention:** 12 hours/week in meetings
+- Same 10 hours of necessary meetings
+- 2 hours added for essential syncs
+
+What could you do with 13 extra hours per week?
+
+### Explain
 Meetings and interruptions destroy focus. Learning to manage them is essential.
 
-**Making Meetings Productive**
+**Making Meetings Productive:**
 
-**Before Accepting:**
+| Phase | Best Practice |
+|-------|---------------|
+| Before | Question necessity, set agenda, invite only essentials |
+| During | Start on time, stay on agenda, park off-topic items |
+| After | Send summary, track action items, evaluate effectiveness |
+
+### Elaborate
+**Before Accepting a Meeting:**
 - What's the objective?
 - Is my attendance necessary?
 - Could this be handled async?
@@ -223,49 +419,80 @@ Meetings and interruptions destroy focus. Learning to manage them is essential.
 - Send materials in advance
 - Document decisions and action items
 
-**During:**
-- Start on time
-- Stay on agenda
-- Park off-topic items
-- End early if done
+**Handling Interruptions:**
 
-**After:**
-- Send summary within 24 hours
-- Track action items
-- Evaluate: Was it necessary? What could improve?
+| Type | Strategy |
+|------|----------|
+| Physical interruptions | Headphones as "do not disturb" signal; communicate schedule |
+| Digital interruptions | Set status to "focusing"; batch responses; use auto-replies |
+| Self-interruptions | Keep a "parking lot" list; resist "just one thing" urges |
 
-**Handling Interruptions**
-
-**Physical Interruptions:**
-- Use headphones as a "do not disturb" signal
-- Find a quiet space for focus work
-- Communicate your schedule: "I'm in deep work until 2pm"
-- Have a "come back later" script ready
-
-**Digital Interruptions:**
-- Set status to "focusing" or "do not disturb"
-- Batch responses instead of reacting immediately
-- Use auto-replies for extended focus periods
-
-**Self-Interruptions:**
-- Keep a "parking lot" list for thoughts that arise
-- Resist the urge to check "just one thing"
-- Remind yourself of your current goal
-
-**The Power of "No"**
+**The Power of "No":**
 
 Every "yes" to a low-value commitment is a "no" to something more important. Guard your calendar:
-
 - Decline meetings you don't need to attend
 - Push back on unrealistic deadlines
 - Say no to optional commitments that don't align with priorities
 - Offer alternatives: "I can't make that meeting, but I'll review the notes"
 
+**Scripts for Declining:**
+
+- "I don't think I'm the right person for this—would [name] be better suited?"
+- "My calendar is full with priorities this week. Can we handle this async?"
+- "I can join for the first 15 minutes when my part is discussed, if that works."
+
+### Evaluate
+**Quick Check:** What should you ask before accepting a meeting invitation?
+
+A) "Will there be food?"
+B) "What's the objective, and is my attendance necessary?"
+C) "Who else is going?"
+D) "How long is it?"
+
+*(Answer: B – Understanding the objective and your necessity helps you decline or prepare appropriately)*
+
+### Your Action
+**Meeting Audit:**
+
+[ ] Review your calendar for next week
+[ ] For each meeting, ask: "Is this necessary? Am I necessary?"
+[ ] Decline or propose async for at least one meeting
+[ ] Block "focus time" on your calendar before it fills with meetings
+
+---
+
 ## Module 6: Building Sustainable Habits
 
+### Engage
 Time management isn't about willpower—it's about building systems that support productivity.
 
-**The Two-Minute Rule**
+The people who seem naturally productive have habits and routines that make good choices automatic.
+
+### Explore
+Compare two approaches to morning productivity:
+
+**Approach A (Willpower):**
+- Wake up
+- Check phone in bed
+- Feel behind
+- Rush through morning
+- Arrive at work already depleted
+- React to whatever is urgent
+
+**Approach B (Systems):**
+- Wake up at consistent time
+- Brief planning routine (15 min)
+- Start with MIT before checking anything
+- Process email, don't respond
+- Begin focused work while fresh
+- Proactive, not reactive
+
+Which morning sets up a better day?
+
+### Explain
+Good systems make productivity automatic rather than requiring constant willpower.
+
+**The Two-Minute Rule:**
 
 If a task takes less than two minutes, do it immediately. Don't add it to a list—just complete it. This prevents small tasks from piling up and draining mental energy.
 
@@ -275,7 +502,8 @@ If a task takes less than two minutes, do it immediately. Don't add it to a list
 - Make a quick phone call
 - Add an appointment to calendar
 
-**Morning Routines**
+### Elaborate
+**Morning Routines:**
 
 A consistent morning routine sets the tone for productive days. Your routine might include:
 - Reviewing your calendar and priorities
@@ -286,7 +514,7 @@ A consistent morning routine sets the tone for productive days. Your routine mig
 
 Spend 15-30 minutes each morning on intentional planning rather than reactive checking.
 
-**Evening Routines**
+**Evening Routines:**
 
 End each day with:
 - Review: What did I accomplish? What didn't I finish?
@@ -294,7 +522,7 @@ End each day with:
 - Prepare: Set up for tomorrow's first task
 - Disconnect: Create boundary between work and rest
 
-**Weekly Reviews**
+**Weekly Reviews:**
 
 Once a week (Friday afternoon or Monday morning), review:
 - Progress on weekly and monthly goals
@@ -302,7 +530,7 @@ Once a week (Friday afternoon or Monday morning), review:
 - Recurring commitments—are they still valuable?
 - Systems—are they working?
 
-**Batch Processing**
+**Batch Processing:**
 
 Group similar tasks for efficiency:
 - Email: Process all at once, 2-3 times daily
@@ -312,82 +540,53 @@ Group similar tasks for efficiency:
 
 Batching reduces context-switching costs and builds momentum.
 
-## Module 7: Tools and Systems
+**Habit Stack Template:**
 
-The right tools amplify your time management efforts.
+Link new habits to existing ones:
+- "After I [existing habit], I will [new habit]"
+- "After I pour my morning coffee, I will review my MITs"
+- "After I close my laptop, I will write tomorrow's top 3 tasks"
+- "After I brush my teeth, I will do 2 minutes of planning"
 
-**Essential Tools**
+### Evaluate
+**Quick Check:** What is the Two-Minute Rule?
 
-**Calendar**
-- Use ONE calendar for everything
-- Block ALL commitments including focus time
-- Color-code by type (meetings, focus, personal)
-- Review daily, plan weekly
+A) Spend at least two minutes on each task
+B) If a task takes less than two minutes, do it immediately
+C) Take a two-minute break every hour
+D) Limit email checking to two minutes at a time
 
-**Task Manager**
-- Capture everything in one place
-- Use a simple system: Projects → Actions → Due dates
-- Review daily, prioritize weekly
-- Options: Todoist, Things, Microsoft To-Do, Notion
+*(Answer: B – Small tasks done immediately prevent accumulation and mental drain)*
 
-**Time Tracker**
-- For awareness, not policing
-- Track for 1-2 weeks to identify patterns
-- Use periodically to recalibrate
+### Your Action
+**Habit Building:**
 
-**Templates**
+[ ] Design a 15-minute morning routine
+[ ] Create an evening shutdown ritual
+[ ] Implement the Two-Minute Rule for one day
+[ ] Schedule your weekly review (put it on the calendar)
 
-Create templates for recurring tasks:
-- Meeting agendas
-- Project plans
-- Weekly reports
-- Email responses
-- Presentation structures
-
-Templates eliminate repetitive work and ensure consistency.
-
-**Automation**
-
-Automate what you can:
-- Email filters and rules
-- Recurring calendar events
-- Bill payments
-- File backups
-- Report generation
-
-Every automated task is time reclaimed.
+---
 
 ## Summary & Key Takeaways
 
 Time management is a learnable skill that compounds over time:
 
-1. **Prioritize ruthlessly**: Use Eisenhower Matrix to focus on important work
-2. **Block time intentionally**: Schedule your priorities before others fill your calendar
-3. **Eliminate distractions**: Identify and remove your biggest time wasters
-4. **Manage meetings**: Decline unnecessary ones, make necessary ones productive
-5. **Build systems**: Create habits and routines that make productivity automatic
-6. **Use tools wisely**: Let technology support, not complicate, your systems
-
-Remember: The goal isn't to pack more into each day—it's to accomplish what matters while maintaining your wellbeing.
+| Principle | Key Insight | Action |
+|-----------|-------------|--------|
+| Prioritize ruthlessly | Use Eisenhower Matrix to focus on important work | Identify MITs daily; protect "Not Urgent/Important" |
+| Block time intentionally | Schedule your priorities before others fill your calendar | Time block tomorrow; include deep work |
+| Eliminate distractions | Identify and remove your biggest time wasters | Turn off notifications; batch email |
+| Manage meetings | Decline unnecessary ones, make necessary ones productive | Request agendas; protect focus time |
+| Build systems | Create habits and routines that make productivity automatic | Morning routine; weekly review; Two-Minute Rule |
 
 ## Next Steps
 
-Ready to take control of your time?
-
-**Apply Your Skills**
-- Conduct a time audit for the next 3 days
-- Implement time blocking for tomorrow
-- Identify your top 3 time wasters and eliminate one
-
-**Related Courses**
-- Communication Basics: Communicate efficiently to save time
-- Workplace Etiquette: Manage meetings and interruptions professionally
-- Leadership Basics: Time management for leaders and teams
-
-**Practice Resources**
-- Download a time tracking app
-- Create your ideal morning routine
-- Schedule your first deep work block
+**Apply Your Skills:**
+[ ] Conduct a time audit for the next 3 days
+[ ] Implement time blocking for tomorrow
+[ ] Identify your top 3 time wasters and eliminate one
+[ ] Create your ideal morning routine
 `;
 
 export const timeManagementQuiz: QuizQuestion[] = [

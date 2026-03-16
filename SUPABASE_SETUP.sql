@@ -67,3 +67,34 @@ CREATE POLICY "Users can insert their own quiz results" ON quiz_results
 ALTER TABLE courses ADD COLUMN IF NOT EXISTS duration_minutes INTEGER DEFAULT 15;
 ALTER TABLE courses ADD COLUMN IF NOT EXISTS category VARCHAR(255) DEFAULT 'General';
 ALTER TABLE courses ADD COLUMN IF NOT EXISTS order_index INTEGER DEFAULT 0;
+
+-- ============================================
+-- SECTION PROGRESS TABLE
+-- ============================================
+-- Tracks per-section completion for granular progress tracking
+CREATE TABLE IF NOT EXISTS section_progress (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE NOT NULL,
+  course_id VARCHAR(255) NOT NULL,
+  section_id VARCHAR(100) NOT NULL,
+  completed BOOLEAN DEFAULT FALSE,
+  completed_at TIMESTAMP WITH TIME ZONE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(user_id, course_id, section_id)
+);
+
+-- Index for efficient user+course queries
+CREATE INDEX IF NOT EXISTS idx_section_progress_user_course ON section_progress(user_id, course_id);
+
+-- Enable RLS for section_progress
+ALTER TABLE section_progress ENABLE ROW LEVEL SECURITY;
+
+-- Policies for section_progress
+CREATE POLICY "Users can view their own section progress" ON section_progress
+  FOR SELECT USING (auth.uid()::text = user_id::text);
+
+CREATE POLICY "Users can insert their own section progress" ON section_progress
+  FOR INSERT WITH CHECK (auth.uid()::text = user_id::text);
+
+CREATE POLICY "Users can update their own section progress" ON section_progress
+  FOR UPDATE USING (auth.uid()::text = user_id::text);

@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { sanitizeText } from "@/lib/sanitize";
+import { ContentBlock, parseContentType, ActionableChecklist, parseChecklistItems } from "@/components/course";
 
 interface Course {
   id: string;
@@ -27,7 +28,6 @@ interface Course {
   content: string;
   category: string;
   duration?: string;
-  lessonCount?: number;
 }
 
 interface ContentBlock {
@@ -50,6 +50,12 @@ interface CourseSection {
   quiz?: QuizQuestion[];
 }
 
+interface SectionProgressItem {
+  section_id: string;
+  completed: boolean;
+  completed_at: string | null;
+}
+
 export default function CourseDetailPage() {
   const params = useParams();
   const courseId = params.courseId as string;
@@ -61,10 +67,12 @@ export default function CourseDetailPage() {
   const [isComplete, setIsComplete] = useState(false);
   const [currentSection, setCurrentSection] = useState(0);
   const [completedSections, setCompletedSections] = useState<Set<number>>(new Set());
+  const [sectionProgressLoaded, setSectionProgressLoaded] = useState(false);
   const [quizAnswers, setQuizAnswers] = useState<{ [key: string]: number }>({});
   const [quizScore, setQuizScore] = useState<{ correct: number; total: number }>({ correct: 0, total: 0 });
   const [error, setError] = useState<string | null>(null);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [savingProgress, setSavingProgress] = useState(false);
 
   useEffect(() => {
     async function fetchCourse() {
@@ -89,6 +97,36 @@ export default function CourseDetailPage() {
   }, [courseId]);
 
   useEffect(() => {
+    async function fetchSectionProgress() {
+      if (!session) return;
+      try {
+        const response = await fetch(`/api/progress/sections?courseId=${courseId}`);
+        if (response.ok) {
+          const data: SectionProgressItem[] = await response.json();
+          const sections = parseContent(course?.content || "");
+          const completedIndices = new Set<number>();
+          
+          data.forEach((item) => {
+            const index = parseInt(item.section_id.replace("section-", ""), 10);
+            if (!isNaN(index) && item.completed) {
+              completedIndices.add(index);
+            }
+          });
+          
+          setCompletedSections(completedIndices);
+          setSectionProgressLoaded(true);
+        }
+      } catch (err) {
+        console.error("Failed to fetch section progress:", err);
+      }
+    }
+    
+    if (course && session) {
+      fetchSectionProgress();
+    }
+  }, [courseId, course, session]);
+
+  useEffect(() => {
     if (typeof window !== "undefined" && window.innerWidth >= 768) {
       const contentEl = document.getElementById("section-content");
       if (contentEl) {
@@ -109,13 +147,35 @@ export default function CourseDetailPage() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [course]);
 
+  const saveSectionProgress = useCallback(async (sectionIndex: number, completed: boolean) => {
+    if (!session) return;
+    
+    setSavingProgress(true);
+    try {
+      await fetch("/api/progress/sections", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          courseId,
+          sectionId: `section-${sectionIndex}`,
+          completed,
+        }),
+      });
+    } catch (err) {
+      console.error("Failed to save section progress:", err);
+    } finally {
+      setSavingProgress(false);
+    }
+  }, [courseId, session]);
+
   const handleMarkSectionComplete = useCallback((sectionIndex: number) => {
     setCompletedSections((prev) => {
       const newSet = new Set(prev);
       newSet.add(sectionIndex);
       return newSet;
     });
-  }, []);
+    saveSectionProgress(sectionIndex, true);
+  }, [saveSectionProgress]);
 
   const handleNextSection = useCallback(() => {
     if (!course) return;
@@ -300,8 +360,8 @@ export default function CourseDetailPage() {
                               completedSections.has(index)
                                 ? "bg-primary-500 text-white"
                                 : currentSection === index
-                                ? "bg-primary-100 text-primary-600"
-                                : "bg-slate-100 text-slate-500"
+                                  ? "bg-primary-100 text-primary-600"
+                                  : "bg-slate-100 text-slate-500"
                             }`}
                           >
                             {completedSections.has(index) ? (
@@ -333,8 +393,8 @@ export default function CourseDetailPage() {
                         currentSection === index
                           ? "bg-primary-50 text-primary-700 font-medium shadow-sm"
                           : completedSections.has(index)
-                          ? "text-slate-600 hover:bg-slate-50"
-                          : "text-slate-600 hover:bg-slate-50"
+                            ? "text-slate-600 hover:bg-slate-50"
+                            : "text-slate-600 hover:bg-slate-50"
                       }`}
                     >
                       <span
@@ -342,8 +402,8 @@ export default function CourseDetailPage() {
                           completedSections.has(index)
                             ? "bg-primary-500 text-white"
                             : currentSection === index
-                            ? "bg-primary-200 text-primary-700"
-                            : "bg-slate-100 text-slate-400"
+                              ? "bg-primary-200 text-primary-700"
+                              : "bg-slate-100 text-slate-400"
                         }`}
                       >
                         {completedSections.has(index) ? (
@@ -399,6 +459,22 @@ export default function CourseDetailPage() {
               <div className="prose prose-slate max-w-none">
                 {sections[currentSection]?.contentBlocks.map((block, blockIndex) => {
                   if (block.type === "subheading") {
+                    const contentType = parseContentType(block.content);
+                    if (contentType) {
+                      const nextBlocks: string[] = [];
+                      let i = blockIndex + 1;
+                      while (i < sections[currentSection].contentBlocks.length) {
+                        const nextBlock = sections[currentSection].contentBlocks[i];
+                        if (nextBlock.type === "subheading") break;
+                        nextBlocks.push(nextBlock.content);
+                        i++;
+                      }
+                      return (
+                        <ContentBlock key={blockIndex} type={contentType} title={block.content}>
+                          <div dangerouslySetInnerHTML={{ __html: formatContent(nextBlocks.join("\n\n")) }} />
+                        </ContentBlock>
+                      );
+                    }
                     return (
                       <h3
                         key={blockIndex}
@@ -409,21 +485,35 @@ export default function CourseDetailPage() {
                       </h3>
                     );
                   } else if (block.type === "list") {
+                    const items = block.content
+                      .split("\n")
+                      .map((item) => item.replace(/^[-*]\s*/, "").trim())
+                      .filter(Boolean);
+                    
+                    const checklistItems = parseChecklistItems(block.content);
+                    if (checklistItems.length > 0) {
+                      return (
+                        <ActionableChecklist
+                          key={blockIndex}
+                          items={checklistItems}
+                          courseId={courseId}
+                          sectionId={`section-${currentSection}`}
+                          checklistId={`block-${blockIndex}`}
+                        />
+                      );
+                    }
+                    
                     return (
                       <ul key={blockIndex} className="space-y-2.5 my-4">
-                        {block.content
-                          .split("\n")
-                          .map((item) => item.replace(/^[-*]\s*/, "").trim())
-                          .filter(Boolean)
-                          .map((item, itemIndex) => (
-                            <li
-                              key={itemIndex}
-                              className="flex items-start gap-3 text-slate-600"
-                            >
-                              <span className="w-1.5 h-1.5 rounded-full bg-primary-400 mt-2 flex-shrink-0"></span>
-                              <span>{item}</span>
-                            </li>
-                          ))}
+                        {items.map((item, itemIndex) => (
+                          <li
+                            key={itemIndex}
+                            className="flex items-start gap-3 text-slate-600"
+                          >
+                            <span className="w-1.5 h-1.5 rounded-full bg-primary-400 mt-2 flex-shrink-0"></span>
+                            <span dangerouslySetInnerHTML={{ __html: formatContent(item) }} />
+                          </li>
+                        ))}
                       </ul>
                     );
                   } else if (block.type === "ordered-list") {
@@ -441,7 +531,7 @@ export default function CourseDetailPage() {
                               <span className="w-6 h-6 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-xs font-bold flex-shrink-0">
                                 {itemIndex + 1}
                               </span>
-                              <span>{item}</span>
+                              <span dangerouslySetInnerHTML={{ __html: formatContent(item) }} />
                             </li>
                           ))}
                       </ol>
@@ -451,14 +541,8 @@ export default function CourseDetailPage() {
                       <p
                         key={blockIndex}
                         className="text-slate-600 leading-relaxed mb-4"
-                      >
-                        {block.content.split("\n").map((line, lineIndex) => (
-                          <span key={lineIndex}>
-                            {line}
-                            {lineIndex < block.content.split("\n").length - 1 && <br />}
-                          </span>
-                        ))}
-                      </p>
+                        dangerouslySetInnerHTML={{ __html: formatContent(block.content) }}
+                      />
                     );
                   }
                 })}
@@ -504,23 +588,19 @@ export default function CourseDetailPage() {
                                   type="radio"
                                   name={questionKey}
                                   checked={userAnswer === oIndex}
-                                  onChange={() => {
-                                    setQuizAnswers((prev) => ({
-                                      ...prev,
-                                      [questionKey]: oIndex,
-                                    }));
-                                    if (oIndex === question.correctAnswer) {
-                                      setQuizScore((prev) => ({
-                                        correct: prev.correct + 1,
-                                        total: prev.total + 1,
-                                      }));
-                                    } else {
-                                      setQuizScore((prev) => ({
-                                        ...prev,
-                                        total: prev.total + 1,
-                                      }));
-                                    }
-                                  }}
+              onChange={() => {
+                              // Only update if not already answered
+                              if (quizAnswers[questionKey] === undefined) {
+                                setQuizAnswers((prev) => ({
+                                  ...prev,
+                                  [questionKey]: oIndex,
+                                }));
+                                setQuizScore((prev) => ({
+                                  correct: oIndex === question.correctAnswer ? prev.correct + 1 : prev.correct,
+                                  total: prev.total + 1,
+                                }));
+                              }
+                            }}
                                   className="text-primary-500 focus:ring-primary-500 w-4 h-4"
                                 />
                                 <span className="text-slate-700">{option}</span>
@@ -600,6 +680,10 @@ export default function CourseDetailPage() {
 }
 
 function parseContent(content: string): CourseSection[] {
+  if (!content || typeof content !== 'string') {
+    return [];
+  }
+  
   const sections = content.split(/^## /m).filter(Boolean);
 
   return sections.map((section: string, index: number) => {
@@ -665,4 +749,12 @@ function parseContent(content: string): CourseSection[] {
       contentBlocks,
     };
   });
+}
+
+function formatContent(content: string): string {
+  return content
+    .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+    .replace(/\*(.*?)\*/g, "<em>$1</em>")
+    .replace(/`(.*?)`/g, "<code class='bg-slate-100 px-1.5 py-0.5 rounded text-sm'>$1</code>")
+    .replace(/\n/g, "<br/>");
 }

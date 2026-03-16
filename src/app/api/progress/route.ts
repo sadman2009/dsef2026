@@ -14,7 +14,7 @@ export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions);
 
-    if (!session) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -28,7 +28,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const userId = (session.user as any).id;
+    const userId = session.user.id;
     const { courseId, completed, progressPercent } = result.data;
 
     await progressDb.upsert(userId, courseId, completed, progressPercent);
@@ -47,11 +47,11 @@ export async function GET(request: Request) {
   try {
     const session = await getServerSession(authOptions);
 
-    if (!session) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const userId = (session.user as any).id;
+    const userId = session.user.id;
     const progress = await progressDb.findByUser(userId);
 
     return NextResponse.json(progress);

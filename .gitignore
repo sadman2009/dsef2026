@@ -92,3 +92,6 @@ Thumbs.db
 # CHECKPOINT FILES
 # ============================================
 checkpoint.md
+.agent-state.md
+.opencode/
+plans/

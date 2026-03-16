@@ -2,23 +2,33 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { chatDb, courseDb } from "@/lib/db";
+import { z } from "zod";
+
+const tutorSchema = z.object({
+  message: z.string().min(1).max(2000),
+  courseId: z.string().optional(),
+});
 
 export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions);
 
-    if (!session) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const body = await request.json();
-    const { message, courseId } = body;
+    const result = tutorSchema.safeParse(body);
 
-    if (!message) {
-      return NextResponse.json({ error: "Message is required" }, { status: 400 });
+    if (!result.success) {
+      return NextResponse.json(
+        { error: "Invalid input", details: result.error.issues },
+        { status: 400 }
+      );
     }
 
-    const userId = (session.user as any).id;
+    const { message, courseId } = result.data;
+    const userId = session.user.id;
 
     // Get course context if provided
     let courseContext = "";

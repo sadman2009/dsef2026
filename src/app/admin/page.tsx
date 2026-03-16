@@ -4,19 +4,20 @@ import { authOptions } from "@/lib/auth";
 import { userDb, courseDb, progressDb, seedCourses } from "@/lib/db";
 import Link from "next/link";
 import { GraduationCap, Users, BookOpen, BarChart3 } from "lucide-react";
+import { Navigation, Footer } from "@/components/layout";
 
 export default async function AdminPage() {
   const session = await getServerSession(authOptions);
 
-  if (!session) {
+  if (!session?.user) {
     redirect("/login");
   }
 
-  const userRole = (session.user as any).role;
+  const userRole = session.user.role;
   const adminEmail = process.env.ADMIN_EMAIL;
 
   // Only allow admin access
-  if (userRole !== "admin" && session.user?.email !== adminEmail) {
+  if (userRole !== "admin" && session.user.email !== adminEmail) {
     redirect("/dashboard");
   }
 
@@ -28,22 +29,19 @@ export default async function AdminPage() {
   const stats = await progressDb.getStats();
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800">
-      <nav className="border-b border-slate-700/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <GraduationCap className="w-8 h-8 text-blue-400" />
-            <span className="text-xl font-bold text-white">UpSkill Admin</span>
-          </Link>
-          <div className="flex items-center gap-4">
-            <Link href="/dashboard" className="text-slate-300 hover:text-white">Dashboard</Link>
-            <span className="text-slate-400">{session.user?.email}</span>
-          </div>
-        </div>
-      </nav>
+    <div className="min-h-screen bg-slate-900">
+      <Navigation />
 
       <div className="max-w-6xl mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold text-white mb-8">Admin Dashboard</h1>
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">Admin Dashboard</h1>
+            <p className="text-slate-500">Platform overview and user management</p>
+          </div>
+          <Link href="/dashboard" className="text-slate-600 hover:text-slate-900 font-medium">
+            Back to Dashboard
+          </Link>
+        </div>
 
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
@@ -107,7 +105,7 @@ export default async function AdminPage() {
                 </tr>
               </thead>
               <tbody>
-                {users.map((user: any) => (
+                {users.map((user) => (
                   <tr key={user.id} className="border-b border-slate-700/50">
                     <td className="py-3 px-4 text-white">{user.name || "—"}</td>
                     <td className="py-3 px-4 text-slate-300">{user.email}</td>
@@ -137,7 +135,7 @@ export default async function AdminPage() {
         <div className="bg-slate-800 border border-slate-700 rounded-xl p-6 mt-6">
           <h2 className="text-xl font-semibold text-white mb-4">Course Management</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {courses.map((course: any) => (
+            {courses.map((course) => (
               <div key={course.id} className="bg-slate-700/50 rounded-lg p-4">
                 <h3 className="font-semibold text-white">{course.title}</h3>
                 <p className="text-slate-400 text-sm">{course.category}</p>
@@ -146,6 +144,8 @@ export default async function AdminPage() {
           </div>
         </div>
       </div>
+
+      <Footer />
     </div>
   );
 }

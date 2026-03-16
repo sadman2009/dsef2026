@@ -44,6 +44,23 @@ export interface Progress {
   completed_at: string | null;
 }
 
+export interface SectionProgress {
+  id: string;
+  user_id: string;
+  course_id: string;
+  section_id: string;
+  completed: boolean;
+  completed_at: string | null;
+  created_at: string;
+}
+
+export interface SectionProgressInput {
+  user_id: string;
+  course_id: string;
+  section_id: string;
+  completed: boolean;
+}
+
 export interface ChatHistory {
   id: string;
   user_id: string;
@@ -73,4 +90,16 @@ export interface DashboardStats {
   total_courses: number;
   completed_count: number;
   avg_progress: number;
+}
+
+export interface CourseSectionProgress {
+  course_id: string;
+  sections: {
+    section_id: string;
+    completed: boolean;
+    completed_at: string | null;
+  }[];
+  total_sections: number;
+  completed_sections: number;
+  progress_percent: number;
 }
