@@ -19,7 +19,12 @@ import {
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { sanitizeText } from "@/lib/sanitize";
-import { ContentBlock, parseContentType, ActionableChecklist, parseChecklistItems } from "@/components/course";
+import {
+  ContentBlock,
+  parseContentType,
+  ActionableChecklist,
+  parseChecklistItems,
+} from "@/components/course";
 
 interface Course {
   id: string;
@@ -66,10 +71,15 @@ export default function CourseDetailPage() {
   const [markingComplete, setMarkingComplete] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
   const [currentSection, setCurrentSection] = useState(0);
-  const [completedSections, setCompletedSections] = useState<Set<number>>(new Set());
+  const [completedSections, setCompletedSections] = useState<Set<number>>(
+    new Set(),
+  );
   const [sectionProgressLoaded, setSectionProgressLoaded] = useState(false);
   const [quizAnswers, setQuizAnswers] = useState<{ [key: string]: number }>({});
-  const [quizScore, setQuizScore] = useState<{ correct: number; total: number }>({ correct: 0, total: 0 });
+  const [quizScore, setQuizScore] = useState<{
+    correct: number;
+    total: number;
+  }>({ correct: 0, total: 0 });
   const [error, setError] = useState<string | null>(null);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [savingProgress, setSavingProgress] = useState(false);
@@ -100,19 +110,21 @@ export default function CourseDetailPage() {
     async function fetchSectionProgress() {
       if (!session) return;
       try {
-        const response = await fetch(`/api/progress/sections?courseId=${courseId}`);
+        const response = await fetch(
+          `/api/progress/sections?courseId=${courseId}`,
+        );
         if (response.ok) {
           const data: SectionProgressItem[] = await response.json();
           const sections = parseContent(course?.content || "");
           const completedIndices = new Set<number>();
-          
+
           data.forEach((item) => {
             const index = parseInt(item.section_id.replace("section-", ""), 10);
             if (!isNaN(index) && item.completed) {
               completedIndices.add(index);
             }
           });
-          
+
           setCompletedSections(completedIndices);
           setSectionProgressLoaded(true);
         }
@@ -120,7 +132,7 @@ export default function CourseDetailPage() {
         console.error("Failed to fetch section progress:", err);
       }
     }
-    
+
     if (course && session) {
       fetchSectionProgress();
     }
@@ -138,7 +150,12 @@ export default function CourseDetailPage() {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "ArrowRight" || e.key === "ArrowDown") {
-        setCurrentSection((prev) => Math.min(prev + 1, (course ? parseContent(course.content).length : 1) - 1));
+        setCurrentSection((prev) =>
+          Math.min(
+            prev + 1,
+            (course ? parseContent(course.content).length : 1) - 1,
+          ),
+        );
       } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
         setCurrentSection((prev) => Math.max(prev - 1, 0));
       }
@@ -147,35 +164,41 @@ export default function CourseDetailPage() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [course]);
 
-  const saveSectionProgress = useCallback(async (sectionIndex: number, completed: boolean) => {
-    if (!session) return;
-    
-    setSavingProgress(true);
-    try {
-      await fetch("/api/progress/sections", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          courseId,
-          sectionId: `section-${sectionIndex}`,
-          completed,
-        }),
-      });
-    } catch (err) {
-      console.error("Failed to save section progress:", err);
-    } finally {
-      setSavingProgress(false);
-    }
-  }, [courseId, session]);
+  const saveSectionProgress = useCallback(
+    async (sectionIndex: number, completed: boolean) => {
+      if (!session) return;
 
-  const handleMarkSectionComplete = useCallback((sectionIndex: number) => {
-    setCompletedSections((prev) => {
-      const newSet = new Set(prev);
-      newSet.add(sectionIndex);
-      return newSet;
-    });
-    saveSectionProgress(sectionIndex, true);
-  }, [saveSectionProgress]);
+      setSavingProgress(true);
+      try {
+        await fetch("/api/progress/sections", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            courseId,
+            sectionId: `section-${sectionIndex}`,
+            completed,
+          }),
+        });
+      } catch (err) {
+        console.error("Failed to save section progress:", err);
+      } finally {
+        setSavingProgress(false);
+      }
+    },
+    [courseId, session],
+  );
+
+  const handleMarkSectionComplete = useCallback(
+    (sectionIndex: number) => {
+      setCompletedSections((prev) => {
+        const newSet = new Set(prev);
+        newSet.add(sectionIndex);
+        return newSet;
+      });
+      saveSectionProgress(sectionIndex, true);
+    },
+    [saveSectionProgress],
+  );
 
   const handleNextSection = useCallback(() => {
     if (!course) return;
@@ -236,7 +259,10 @@ export default function CourseDetailPage() {
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
           <p className="text-slate-600 mb-4">{error || "Course not found"}</p>
-          <Link href="/courses" className="text-primary-600 hover:text-primary-700 font-medium">
+          <Link
+            href="/courses"
+            className="text-primary-600 hover:text-primary-700 font-medium"
+          >
             Back to Courses
           </Link>
         </div>
@@ -245,7 +271,9 @@ export default function CourseDetailPage() {
   }
 
   const sections = parseContent(course.content);
-  const progressPercent = Math.round((completedSections.size / sections.length) * 100);
+  const progressPercent = Math.round(
+    (completedSections.size / sections.length) * 100,
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-50/30">
@@ -258,15 +286,24 @@ export default function CourseDetailPage() {
             <span className="text-lg font-bold text-slate-900">UpSkill</span>
           </Link>
           <div className="flex items-center gap-4">
-            <Link href="/courses" className="text-slate-600 hover:text-slate-900 font-medium text-sm">
+            <Link
+              href="/courses"
+              className="text-slate-600 hover:text-slate-900 font-medium text-sm"
+            >
               Courses
             </Link>
             {session ? (
-              <Link href="/dashboard" className="text-primary-600 font-medium text-sm">
+              <Link
+                href="/dashboard"
+                className="text-primary-600 font-medium text-sm"
+              >
                 Dashboard
               </Link>
             ) : (
-              <Link href="/login" className="text-slate-600 hover:text-slate-900 font-medium text-sm">
+              <Link
+                href="/login"
+                className="text-slate-600 hover:text-slate-900 font-medium text-sm"
+              >
                 Sign In
               </Link>
             )}
@@ -304,12 +341,16 @@ export default function CourseDetailPage() {
               <h1 className="text-xl md:text-2xl font-bold text-slate-900 mb-2">
                 {sanitizeText(course.title)}
               </h1>
-              <p className="text-slate-600">{sanitizeText(course.description)}</p>
+              <p className="text-slate-600">
+                {sanitizeText(course.description)}
+              </p>
             </div>
             <div className="flex items-center gap-3 md:justify-end">
               <div className="flex items-center gap-2 bg-slate-50 rounded-xl px-4 py-3">
                 <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center">
-                  <span className="text-primary-600 font-bold text-sm">{progressPercent}%</span>
+                  <span className="text-primary-600 font-bold text-sm">
+                    {progressPercent}%
+                  </span>
                 </div>
                 <div className="text-xs">
                   <p className="font-semibold text-slate-700">Progress</p>
@@ -331,7 +372,8 @@ export default function CourseDetailPage() {
               >
                 <span className="flex items-center gap-2">
                   <BookOpen className="w-4 h-4 text-primary-500" />
-                  Section {currentSection + 1}: {sections[currentSection]?.title}
+                  Section {currentSection + 1}:{" "}
+                  {sections[currentSection]?.title}
                 </span>
                 {mobileNavOpen ? (
                   <ChevronUp className="w-4 h-4" />
@@ -412,7 +454,9 @@ export default function CourseDetailPage() {
                           index + 1
                         )}
                       </span>
-                      <span className="line-clamp-2 leading-snug">{section.title}</span>
+                      <span className="line-clamp-2 leading-snug">
+                        {section.title}
+                      </span>
                     </button>
                   </li>
                 ))}
@@ -421,7 +465,9 @@ export default function CourseDetailPage() {
                 <div className="mt-4 pt-4 border-t border-slate-100">
                   <div className="flex items-center gap-2 text-green-600 bg-green-50 rounded-lg px-3 py-2">
                     <Trophy className="w-4 h-4" />
-                    <span className="text-sm font-medium">Course Completed!</span>
+                    <span className="text-sm font-medium">
+                      Course Completed!
+                    </span>
                   </div>
                 </div>
               )}
@@ -429,7 +475,10 @@ export default function CourseDetailPage() {
           </aside>
 
           <main className="flex-1 min-w-0">
-            <div id="section-content" className="bg-white rounded-2xl border border-slate-200/80 p-6 md:p-8 shadow-sm">
+            <div
+              id="section-content"
+              className="bg-white rounded-2xl border border-slate-200/80 p-6 md:p-8 shadow-sm"
+            >
               <header className="mb-6 pb-4 border-b border-slate-100">
                 <div className="flex items-center gap-3">
                   <span
@@ -457,180 +506,217 @@ export default function CourseDetailPage() {
               </header>
 
               <div className="prose prose-slate max-w-none">
-                {sections[currentSection]?.contentBlocks.map((block, blockIndex) => {
-                  if (block.type === "subheading") {
-                    const contentType = parseContentType(block.content);
-                    if (contentType) {
-                      const nextBlocks: string[] = [];
-                      let i = blockIndex + 1;
-                      while (i < sections[currentSection].contentBlocks.length) {
-                        const nextBlock = sections[currentSection].contentBlocks[i];
-                        if (nextBlock.type === "subheading") break;
-                        nextBlocks.push(nextBlock.content);
-                        i++;
+                {sections[currentSection]?.contentBlocks.map(
+                  (block, blockIndex) => {
+                    if (block.type === "subheading") {
+                      const contentType = parseContentType(block.content);
+                      if (contentType) {
+                        const nextBlocks: string[] = [];
+                        let i = blockIndex + 1;
+                        while (
+                          i < sections[currentSection].contentBlocks.length
+                        ) {
+                          const nextBlock =
+                            sections[currentSection].contentBlocks[i];
+                          if (nextBlock.type === "subheading") break;
+                          nextBlocks.push(nextBlock.content);
+                          i++;
+                        }
+                        return (
+                          <ContentBlock
+                            key={blockIndex}
+                            type={contentType}
+                            title={block.content}
+                          >
+                            <div
+                              dangerouslySetInnerHTML={{
+                                __html: formatContent(nextBlocks.join("\n\n")),
+                              }}
+                            />
+                          </ContentBlock>
+                        );
                       }
                       return (
-                        <ContentBlock key={blockIndex} type={contentType} title={block.content}>
-                          <div dangerouslySetInnerHTML={{ __html: formatContent(nextBlocks.join("\n\n")) }} />
-                        </ContentBlock>
-                      );
-                    }
-                    return (
-                      <h3
-                        key={blockIndex}
-                        className="text-lg font-semibold text-slate-800 mt-8 mb-4 flex items-center gap-2"
-                      >
-                        <span className="w-1 h-5 bg-primary-400 rounded-full"></span>
-                        {block.content}
-                      </h3>
-                    );
-                  } else if (block.type === "list") {
-                    const items = block.content
-                      .split("\n")
-                      .map((item) => item.replace(/^[-*]\s*/, "").trim())
-                      .filter(Boolean);
-                    
-                    const checklistItems = parseChecklistItems(block.content);
-                    if (checklistItems.length > 0) {
-                      return (
-                        <ActionableChecklist
+                        <h3
                           key={blockIndex}
-                          items={checklistItems}
-                          courseId={courseId}
-                          sectionId={`section-${currentSection}`}
-                          checklistId={`block-${blockIndex}`}
-                        />
+                          className="text-lg font-semibold text-slate-800 mt-8 mb-4 flex items-center gap-2"
+                        >
+                          <span className="w-1 h-5 bg-primary-400 rounded-full"></span>
+                          {block.content}
+                        </h3>
                       );
-                    }
-                    
-                    return (
-                      <ul key={blockIndex} className="space-y-2.5 my-4">
-                        {items.map((item, itemIndex) => (
-                          <li
-                            key={itemIndex}
-                            className="flex items-start gap-3 text-slate-600"
-                          >
-                            <span className="w-1.5 h-1.5 rounded-full bg-primary-400 mt-2 flex-shrink-0"></span>
-                            <span dangerouslySetInnerHTML={{ __html: formatContent(item) }} />
-                          </li>
-                        ))}
-                      </ul>
-                    );
-                  } else if (block.type === "ordered-list") {
-                    return (
-                      <ol key={blockIndex} className="space-y-2.5 my-4">
-                        {block.content
-                          .split("\n")
-                          .map((item) => item.replace(/^\d+\.\s*/, "").trim())
-                          .filter(Boolean)
-                          .map((item, itemIndex) => (
+                    } else if (block.type === "list") {
+                      const items = block.content
+                        .split("\n")
+                        .map((item) => item.replace(/^[-*]\s*/, "").trim())
+                        .filter(Boolean);
+
+                      const checklistItems = parseChecklistItems(block.content);
+                      if (checklistItems.length > 0) {
+                        return (
+                          <ActionableChecklist
+                            key={blockIndex}
+                            items={checklistItems}
+                            courseId={courseId}
+                            sectionId={`section-${currentSection}`}
+                            checklistId={`block-${blockIndex}`}
+                          />
+                        );
+                      }
+
+                      return (
+                        <ul key={blockIndex} className="space-y-2.5 my-4">
+                          {items.map((item, itemIndex) => (
                             <li
                               key={itemIndex}
                               className="flex items-start gap-3 text-slate-600"
                             >
-                              <span className="w-6 h-6 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-xs font-bold flex-shrink-0">
-                                {itemIndex + 1}
-                              </span>
-                              <span dangerouslySetInnerHTML={{ __html: formatContent(item) }} />
+                              <span className="w-1.5 h-1.5 rounded-full bg-primary-400 mt-2 flex-shrink-0"></span>
+                              <span
+                                dangerouslySetInnerHTML={{
+                                  __html: formatContent(item),
+                                }}
+                              />
                             </li>
                           ))}
-                      </ol>
-                    );
-                  } else {
-                    return (
-                      <p
-                        key={blockIndex}
-                        className="text-slate-600 leading-relaxed mb-4"
-                        dangerouslySetInnerHTML={{ __html: formatContent(block.content) }}
-                      />
-                    );
-                  }
-                })}
+                        </ul>
+                      );
+                    } else if (block.type === "ordered-list") {
+                      return (
+                        <ol key={blockIndex} className="space-y-2.5 my-4">
+                          {block.content
+                            .split("\n")
+                            .map((item) => item.replace(/^\d+\.\s*/, "").trim())
+                            .filter(Boolean)
+                            .map((item, itemIndex) => (
+                              <li
+                                key={itemIndex}
+                                className="flex items-start gap-3 text-slate-600"
+                              >
+                                <span className="w-6 h-6 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-xs font-bold flex-shrink-0">
+                                  {itemIndex + 1}
+                                </span>
+                                <span
+                                  dangerouslySetInnerHTML={{
+                                    __html: formatContent(item),
+                                  }}
+                                />
+                              </li>
+                            ))}
+                        </ol>
+                      );
+                    } else {
+                      return (
+                        <p
+                          key={blockIndex}
+                          className="text-slate-600 leading-relaxed mb-4"
+                          dangerouslySetInnerHTML={{
+                            __html: formatContent(block.content),
+                          }}
+                        />
+                      );
+                    }
+                  },
+                )}
               </div>
 
-              {sections[currentSection]?.quiz && sections[currentSection].quiz!.length > 0 && (
-                <div className="mt-8 pt-6 border-t border-slate-200">
-                  <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl border border-amber-200/60 p-6">
-                    <div className="flex items-center gap-3 mb-5">
-                      <div className="w-10 h-10 rounded-xl bg-amber-400 flex items-center justify-center">
-                        <Target className="w-5 h-5 text-white" />
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-slate-800">Knowledge Check</h3>
-                        <p className="text-sm text-slate-500">
-                          Test your understanding of this section
-                        </p>
-                      </div>
-                    </div>
-
-                    {sections[currentSection].quiz!.map((question, qIndex) => {
-                      const questionKey = `${sections[currentSection].id}-${qIndex}`;
-                      const userAnswer = quizAnswers[questionKey];
-
-                      return (
-                        <div key={question.id} className="mb-6 last:mb-0">
-                          <p className="font-medium text-slate-700 mb-3">
-                            {qIndex + 1}. {question.question}
+              {sections[currentSection]?.quiz &&
+                sections[currentSection].quiz!.length > 0 && (
+                  <div className="mt-8 pt-6 border-t border-slate-200">
+                    <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl border border-amber-200/60 p-6">
+                      <div className="flex items-center gap-3 mb-5">
+                        <div className="w-10 h-10 rounded-xl bg-amber-400 flex items-center justify-center">
+                          <Target className="w-5 h-5 text-white" />
+                        </div>
+                        <div>
+                          <h3 className="font-bold text-slate-800">
+                            Knowledge Check
+                          </h3>
+                          <p className="text-sm text-slate-500">
+                            Test your understanding of this section
                           </p>
-                          <div className="space-y-2">
-                            {question.options.map((option, oIndex) => (
-                              <label
-                                key={oIndex}
-                                className={`flex items-center gap-3 p-4 rounded-xl cursor-pointer transition-all border-2 ${
-                                  userAnswer === oIndex
-                                    ? oIndex === question.correctAnswer
-                                      ? "bg-green-50 border-green-400"
-                                      : "bg-red-50 border-red-400"
-                                    : "bg-white border-slate-200 hover:border-primary-300 hover:bg-primary-50/50"
-                                }`}
-                              >
-                                <input
-                                  type="radio"
-                                  name={questionKey}
-                                  checked={userAnswer === oIndex}
-              onChange={() => {
-                              // Only update if not already answered
-                              if (quizAnswers[questionKey] === undefined) {
-                                setQuizAnswers((prev) => ({
-                                  ...prev,
-                                  [questionKey]: oIndex,
-                                }));
-                                setQuizScore((prev) => ({
-                                  correct: oIndex === question.correctAnswer ? prev.correct + 1 : prev.correct,
-                                  total: prev.total + 1,
-                                }));
-                              }
-                            }}
-                                  className="text-primary-500 focus:ring-primary-500 w-4 h-4"
-                                />
-                                <span className="text-slate-700">{option}</span>
-                                {userAnswer === oIndex && (
-                                  <span className="ml-auto">
-                                    {oIndex === question.correctAnswer ? (
-                                      <CheckCircle className="w-5 h-5 text-green-500" />
-                                    ) : (
-                                      <span className="text-red-500 text-sm font-medium">
-                                        Incorrect
+                        </div>
+                      </div>
+
+                      {sections[currentSection].quiz!.map(
+                        (question, qIndex) => {
+                          const questionKey = `${sections[currentSection].id}-${qIndex}`;
+                          const userAnswer = quizAnswers[questionKey];
+
+                          return (
+                            <div key={question.id} className="mb-6 last:mb-0">
+                              <p className="font-medium text-slate-700 mb-3">
+                                {qIndex + 1}. {question.question}
+                              </p>
+                              <div className="space-y-2">
+                                {question.options.map((option, oIndex) => (
+                                  <label
+                                    key={oIndex}
+                                    className={`flex items-center gap-3 p-4 rounded-xl cursor-pointer transition-all border-2 ${
+                                      userAnswer === oIndex
+                                        ? oIndex === question.correctAnswer
+                                          ? "bg-green-50 border-green-400"
+                                          : "bg-red-50 border-red-400"
+                                        : "bg-white border-slate-200 hover:border-primary-300 hover:bg-primary-50/50"
+                                    }`}
+                                  >
+                                    <input
+                                      type="radio"
+                                      name={questionKey}
+                                      checked={userAnswer === oIndex}
+                                      onChange={() => {
+                                        // Only update if not already answered
+                                        if (
+                                          quizAnswers[questionKey] === undefined
+                                        ) {
+                                          setQuizAnswers((prev) => ({
+                                            ...prev,
+                                            [questionKey]: oIndex,
+                                          }));
+                                          setQuizScore((prev) => ({
+                                            correct:
+                                              oIndex === question.correctAnswer
+                                                ? prev.correct + 1
+                                                : prev.correct,
+                                            total: prev.total + 1,
+                                          }));
+                                        }
+                                      }}
+                                      className="text-primary-500 focus:ring-primary-500 w-4 h-4"
+                                    />
+                                    <span className="text-slate-700">
+                                      {option}
+                                    </span>
+                                    {userAnswer === oIndex && (
+                                      <span className="ml-auto">
+                                        {oIndex === question.correctAnswer ? (
+                                          <CheckCircle className="w-5 h-5 text-green-500" />
+                                        ) : (
+                                          <span className="text-red-500 text-sm font-medium">
+                                            Incorrect
+                                          </span>
+                                        )}
                                       </span>
                                     )}
-                                  </span>
+                                  </label>
+                                ))}
+                              </div>
+                              {userAnswer !== undefined &&
+                                userAnswer !== question.correctAnswer && (
+                                  <div className="mt-3 p-3 bg-amber-50 rounded-lg border border-amber-200">
+                                    <p className="text-sm text-amber-800">
+                                      <strong>Explanation:</strong>{" "}
+                                      {question.explanation}
+                                    </p>
+                                  </div>
                                 )}
-                              </label>
-                            ))}
-                          </div>
-                          {userAnswer !== undefined && userAnswer !== question.correctAnswer && (
-                            <div className="mt-3 p-3 bg-amber-50 rounded-lg border border-amber-200">
-                              <p className="text-sm text-amber-800">
-                                <strong>Explanation:</strong> {question.explanation}
-                              </p>
                             </div>
-                          )}
-                        </div>
-                      );
-                    })}
+                          );
+                        },
+                      )}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
               <div className="mt-8 pt-6 border-t border-slate-200">
                 <div className="flex items-center justify-between gap-4">
@@ -680,10 +766,10 @@ export default function CourseDetailPage() {
 }
 
 function parseContent(content: string): CourseSection[] {
-  if (!content || typeof content !== 'string') {
+  if (!content || typeof content !== "string") {
     return [];
   }
-  
+
   const sections = content.split(/^## /m).filter(Boolean);
 
   return sections.map((section: string, index: number) => {
@@ -693,7 +779,8 @@ function parseContent(content: string): CourseSection[] {
 
     const contentBlocks: ContentBlock[] = [];
     let currentBlock: string[] = [];
-    let currentType: "paragraph" | "subheading" | "list" | "ordered-list" = "paragraph";
+    let currentType: "paragraph" | "subheading" | "list" | "ordered-list" =
+      "paragraph";
 
     body.split("\n").forEach((line: string) => {
       line = line.trim();
@@ -701,15 +788,24 @@ function parseContent(content: string): CourseSection[] {
 
       if (line.startsWith("### ")) {
         if (currentBlock.length > 0) {
-          contentBlocks.push({ type: currentType, content: currentBlock.join("\n") });
+          contentBlocks.push({
+            type: currentType,
+            content: currentBlock.join("\n"),
+          });
         }
-        contentBlocks.push({ type: "subheading", content: line.replace("### ", "") });
+        contentBlocks.push({
+          type: "subheading",
+          content: line.replace("### ", ""),
+        });
         currentType = "paragraph";
         currentBlock = [];
       } else if (line.startsWith("- ") || line.startsWith("* ")) {
         if (currentType !== "list") {
           if (currentBlock.length > 0) {
-            contentBlocks.push({ type: currentType, content: currentBlock.join("\n") });
+            contentBlocks.push({
+              type: currentType,
+              content: currentBlock.join("\n"),
+            });
           }
           currentType = "list";
           currentBlock = [line];
@@ -719,7 +815,10 @@ function parseContent(content: string): CourseSection[] {
       } else if (/^\d+\.\s/.test(line)) {
         if (currentType !== "ordered-list") {
           if (currentBlock.length > 0) {
-            contentBlocks.push({ type: currentType, content: currentBlock.join("\n") });
+            contentBlocks.push({
+              type: currentType,
+              content: currentBlock.join("\n"),
+            });
           }
           currentType = "ordered-list";
           currentBlock = [line];
@@ -729,7 +828,10 @@ function parseContent(content: string): CourseSection[] {
       } else {
         if (currentType !== "paragraph") {
           if (currentBlock.length > 0) {
-            contentBlocks.push({ type: currentType, content: currentBlock.join("\n") });
+            contentBlocks.push({
+              type: currentType,
+              content: currentBlock.join("\n"),
+            });
           }
           currentType = "paragraph";
           currentBlock = [line];
@@ -740,7 +842,10 @@ function parseContent(content: string): CourseSection[] {
     });
 
     if (currentBlock.length > 0) {
-      contentBlocks.push({ type: currentType, content: currentBlock.join("\n") });
+      contentBlocks.push({
+        type: currentType,
+        content: currentBlock.join("\n"),
+      });
     }
 
     return {
@@ -755,6 +860,9 @@ function formatContent(content: string): string {
   return content
     .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
     .replace(/\*(.*?)\*/g, "<em>$1</em>")
-    .replace(/`(.*?)`/g, "<code class='bg-slate-100 px-1.5 py-0.5 rounded text-sm'>$1</code>")
+    .replace(
+      /`(.*?)`/g,
+      "<code class='bg-slate-100 px-1.5 py-0.5 rounded text-sm'>$1</code>",
+    )
     .replace(/\n/g, "<br/>");
 }
