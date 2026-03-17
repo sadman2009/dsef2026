@@ -770,12 +770,27 @@ function parseContent(content: string): CourseSection[] {
     return [];
   }
 
-  const sections = content.split(/^## /m).filter(Boolean);
+  // Check if content starts with a title (#)
+  const titleMatch = content.match(/^#\s+(.+)$/m);
+  let courseTitle = "";
+  let remainingContent = content;
+  
+  if (titleMatch && titleMatch.index === 0) {
+    courseTitle = titleMatch[1].trim();
+    remainingContent = content.slice(titleMatch[0].length).trim();
+  }
+
+  const sections = remainingContent.split(/^## /m).filter(Boolean);
 
   return sections.map((section: string, index: number) => {
     const lines = section.split("\n");
-    const title = lines[0].trim();
-    const body = lines.slice(1).join("\n");
+    let title = lines[0].trim();
+    let body = lines.slice(1).join("\n");
+    
+    // Merge "Introduction" section with course title if first section
+    if (index === 0 && title.toLowerCase() === "introduction" && courseTitle) {
+      title = courseTitle;
+    }
 
     const contentBlocks: ContentBlock[] = [];
     let currentBlock: string[] = [];
@@ -857,7 +872,58 @@ function parseContent(content: string): CourseSection[] {
 }
 
 function formatContent(content: string): string {
-  return content
+  // Handle tables first (before other formatting)
+  let formatted = content;
+  
+  // Match markdown tables: header row, separator, and data rows
+  const tableRegex = /\|([^\n]+)\|\n\|[-:\|\s]+\|\n((?:\|[^\n]+\|\n?)+)/g;
+  
+  formatted = formatted.replace(tableRegex, (match, headerRow, dataRows) => {
+    // Parse header
+    const headers = headerRow
+      .split('|')
+      .map((h: string) => h.trim())
+      .filter((h: string) => h.length > 0);
+    
+    // Parse data rows
+    const rows = dataRows
+      .trim()
+      .split('\n')
+      .filter((row: string) => row.trim())
+      .map((row: string) => {
+        const cells = row
+          .split('|')
+          .map((c: string) => c.trim())
+          .filter((c: string) => c.length > 0);
+        return cells;
+      });
+    
+    // Build HTML table
+    let html = '<div class="overflow-x-auto my-4"><table class="w-full border-collapse border border-slate-300">';
+    
+    // Header
+    html += '<thead><tr class="bg-slate-100">';
+    headers.forEach((header: string) => {
+      html += `<th class="border border-slate-300 px-3 py-2 text-left text-sm font-semibold text-slate-700">${escapeHtml(header)}</th>`;
+    });
+    html += '</tr></thead>';
+    
+    // Body
+    html += '<tbody>';
+    rows.forEach((row: string[]) => {
+      html += '<tr class="border-b border-slate-200">';
+      row.forEach((cell: string) => {
+        html += `<td class="border border-slate-300 px-3 py-2 text-sm text-slate-600">${escapeHtml(cell)}</td>`;
+      });
+      html += '</tr>';
+    });
+    html += '</tbody></table></div>';
+    
+    return html;
+  });
+  
+  // Handle other markdown
+  return formatted
     .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
     .replace(/\*(.*?)\*/g, "<em>$1</em>")
     .replace(
@@ -865,4 +931,16 @@ function formatContent(content: string): string {
       "<code class='bg-slate-100 px-1.5 py-0.5 rounded text-sm'>$1</code>",
     )
     .replace(/\n/g, "<br/>");
+}
+
+function escapeHtml(text: string): string {
+  const div = { __html: '' };
+  const map: Record<string, string> = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;'
+  };
+  return text.replace(/[&<>"']/g, (m) => map[m]);
 }
