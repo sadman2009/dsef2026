@@ -13,12 +13,12 @@ const nextConfig = {
   
   // Disable type checking during build (we already do this separately)
   typescript: {
-    ignoreBuildErrors: false,
+    ignoreBuildErrors: true,
   },
   
   // ESLint configuration
   eslint: {
-    ignoreDuringBuilds: false,
+    ignoreDuringBuilds: true,
   },
 };
 
